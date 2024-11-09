@@ -2,7 +2,7 @@
 # Your project name
 This is a template repo for your project to help you organise and document your code better. 
 Please use this structure for your project and document the installation, usage and structure as below.
-
+![Getting Started](ada_data_processing_pipeline.png)
 ## Quickstart
 
 ```bash
