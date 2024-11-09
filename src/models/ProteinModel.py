@@ -26,6 +26,8 @@ class ProteinModel:
     def get_probabilities_unmasked(self, protein_sequence, position):
         """
         Returns probability of having any amino acid at the specific position in the protein sequence.
+        :param protein_sequence: protein sequence
+        :param position: position of the amino acid in the protein sequence that wants to be masked
         """
         masked_sequence = protein_sequence[:position] + "<mask>" + protein_sequence[position + 1:]
         return self.get_probabilities_masked(masked_sequence)
@@ -33,6 +35,7 @@ class ProteinModel:
     def get_probabilities_masked(self, masked_sequence):
         """
         Returns probability of having any amino acid at the masked position in the protein sequence.
+        :param masked_sequence: protein sequence with a masked amino acid
         """
         with torch.no_grad():
             predictions = self.pipe(masked_sequence, top_k=33)
@@ -42,6 +45,7 @@ class ProteinModel:
         """
         Returns the embeddings for a protein sequence.
         Code taken from: https://github.com/facebookresearch/esm/issues/348
+        :param sequence: protein sequence to be embedded
         """
         with torch.no_grad():
             inputs = self.tokenizer(sequence, return_tensors="pt")

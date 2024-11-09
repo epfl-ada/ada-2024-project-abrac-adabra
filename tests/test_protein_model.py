@@ -15,7 +15,7 @@ class Test(unittest.TestCase):
 
     def test_probabilities(self):
         """
-        Test the probabilities of masked positions
+        Test that the model correctly predicts the probability of the masked amino acid
         """
         masked_sequence = 'MQIFVKTLTGKTITLEVEPS<mask>TIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG'
 
@@ -35,7 +35,7 @@ class Test(unittest.TestCase):
 
     def test_predictions(self):
         """
-        Test that the function correctly mask the sequence
+        Test that the function correctly masks the position in the given sequence
         """
         sequence = 'MQIFVKTLTGKTITLEVEPSDTIENVKAKIQDKEGIPPDQQRLIFAGKQLEDGRTLSDYNIQKESTLHLVLRLRGG'
         position = random.randint(0, len(sequence) - 1)
@@ -50,7 +50,7 @@ class Test(unittest.TestCase):
 
     def test_embeddings(self):
         """
-        Test embeddings
+        Test the embeddings of the proteins using ESM2
         """
         tokenizer = EsmTokenizer.from_pretrained("facebook/esm2_t6_8M_UR50D")
         model = EsmModel.from_pretrained("facebook/esm2_t6_8M_UR50D")
