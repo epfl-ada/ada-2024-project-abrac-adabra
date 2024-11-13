@@ -4,16 +4,6 @@ import numpy as np
 import json
 
 
-def get_protein_sequence(file_path, sequence_name):
-    """
-    Find the sequence of the given protein name from the given file path.
-    :param file_path: path to the file containing the protein sequences.
-    :param sequence_name: name of the protein.
-    """
-    df = pd.read_csv(file_path)
-    return df[df['Target Name'] == sequence_name]['BindingDB Target Chain Sequence'].iloc[0]
-
-
 def compute_differences(sequence_1, sequence_2):
     """
     Compute the differences between two sequences by aligning the two sequences.
@@ -33,25 +23,31 @@ def compute_differences(sequence_1, sequence_2):
     return align_array, positions[0]
 
 
-def get_differences(proteins_list_str, file_path):
+def get_differences(reference_protein, mutants_list_str, sequences_list_str):
     """
     Compute the differences between two sequences by aligning the two sequences.
-    :param proteins_list_str: list of protein sequences.
-    :param file_path: path to the file containing the protein sequences.
+    :param reference_protein: name of the reference protein.
+    :param mutants_list_str: list of names of protein mutants.
+    :param sequences_list: list of sequences.
     :return: DataFrame containing the mutant name, the alignment of the reference, the alignment of the mutant and the
     positions at which there is a difference in the alignments.
     """
-    proteins_list = json.loads(proteins_list_str.replace("'", '"'))
-    sequence1 = get_protein_sequence(file_path, proteins_list[0])
+    mutants_list = json.loads(mutants_list_str.replace("'", '"'))
+    sequences_list = json.loads(sequences_list_str.replace("'", '"'))
+    reference_index = mutants_list.index(reference_protein)
+    reference_sequence = sequences_list[reference_index]
 
     comparison_results = []
-    for protein in proteins_list[1:]:
-        sequence2 = get_protein_sequence(file_path, protein)
-        alignment, positions = compute_differences(sequence1, sequence2)
+    for i in range(len(mutants_list)):
+        if mutants_list[i] == reference_protein:
+            continue
+        mutant = mutants_list[i]
+        mutant_sequence = sequences_list[i]
+        alignment, positions = compute_differences(reference_sequence, mutant_sequence)
         comparison_results.append({
-            'Protein Name': protein,
-            'Alignment 1': ''.join([byte.decode('utf-8') for byte in alignment[0]]),
-            'Alignment 2': ''.join([byte.decode('utf-8') for byte in alignment[1]]),
+            'Mutant Name': mutant,
+            'Alignment Reference': ''.join([byte.decode('utf-8') for byte in alignment[0]]),
+            'Alignment Mutant': ''.join([byte.decode('utf-8') for byte in alignment[1]]),
             'Positions': positions
         })
 
