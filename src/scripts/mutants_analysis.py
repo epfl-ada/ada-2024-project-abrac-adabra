@@ -28,7 +28,7 @@ def get_differences(reference_protein, mutants_list_str, sequences_list_str):
     Compute the differences between two sequences by aligning the two sequences.
     :param reference_protein: name of the reference protein.
     :param mutants_list_str: list of names of protein mutants.
-    :param sequences_list: list of sequences.
+    :param sequences_list_str: list of sequences.
     :return: DataFrame containing the mutant name, the alignment of the reference, the alignment of the mutant and the
     positions at which there is a difference in the alignments.
     """
