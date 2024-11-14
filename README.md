@@ -33,7 +33,7 @@ No additional datasets are currently proposed. However, pre-trained models for s
 **Week 14:** Finalize analysis, visualize findings, and prepare project report.  
 
 ### Organization within the Team:
-- **Team A:** (Viola, Tancredi & Alexis)
+- **Team A:** (Viola, Tancredi & Alexis)  
   W11: Generate IC50 graphs for selected reference-mutant groups.  
   W12: Explore amino acid properties for IC50 graphs using hydrophobic values.  
   W13: Explore amino acid properties for IC50 graphs using ESM2.  
