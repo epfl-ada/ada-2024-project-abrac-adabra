@@ -17,7 +17,7 @@ No additional datasets are currently proposed. However, pre-trained models for s
 
 ### Methods:
 1) **Preprocessing:** the following image shows the preprocessing steps done to perform analysis on mutant sequences. To focus on mutants, we created a new dataframe by grouping entries by ‘Ligand SMILES’ and ‘UniProt (SwissProt) Entry Name of Target Chain’. We retained only groups with multiple entries (to include mutants) and saved lists of mutant names and sequences for each unique ‘Ligand SMILES’/‘UniProt Entry Name’ pair. [Already done]
-![Data Processing](images/ada_data_processing_pipeline.png)
+![Data Processing](images/data_processing_pipeline.png)
 
 2) **Mutation Standardization and Analysis:** since the dataset does not provide a standard mutation format, we use the Needleman-Wunsch algorithm to automatically identify the differences between the reference sequence and the mutant ones. [Already done]  
 3) **IC50 Graphing and Visualization:** for each reference-mutant group and ligand, report the IC50 variation between the reference protein and the mutants, taking into account both the mutation type and changes in amino acid properties. To characterize the nature of the mutations, we propose using an ESM2 masking model, where output probabilities are analyzed at the masked positions. We will need to account also the fact that most mutants have multiple mutations occurring at different positions. TODO 
