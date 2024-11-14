@@ -20,23 +20,23 @@ No additional datasets are currently proposed. However, pre-trained models for s
 ![Data Processing](images/ada_data_processing_pipeline.png)
 
 2) **Mutation Standardization and Analysis:** since the dataset does not provide a standard mutation format, we use the Needleman-Wunsch algorithm to automatically identify the differences between the reference sequence and the mutant ones. [Already done]  
-3) **IC50 Graphing and Visualization:** for each reference-mutant group and ligand, report the IC50 variation between the reference protein and the mutants, taking into account both the mutation type and changes in amino acid properties. To characterize the nature of the mutations, we propose using an ESM2 masking model, where output probabilities are analyzed at the masked positions. We will need to account also the fact that most mutants have multiple mutations occurring at different positions.  
-4) 
-5) 
+3) **IC50 Graphing and Visualization:** for each reference-mutant group and ligand, report the IC50 variation between the reference protein and the mutants, taking into account both the mutation type and changes in amino acid properties. To characterize the nature of the mutations, we propose using an ESM2 masking model, where output probabilities are analyzed at the masked positions. We will need to account also the fact that most mutants have multiple mutations occurring at different positions. TODO 
+4) TODO
+5) TODO
 
 ### Proposed Timeline:
 **Week 9:** Standardize mutation representation in dataset and conduct initial IC50 analysis. [Already done]  
 **Week 10:** Homework 2  
 **Week 11:** Generate IC50 graphs for selected reference-mutant groups. Test embedding models, apply dimensionality reduction, and visualize clusters.  
 **Week 12:** Explore amino acid properties for IC50 graphs part 1.   
-**Week 13:** Explore amino acid properties for IC50 graphs part 2. Train and validate k-NN classifier on clustered embeddings.  
+**Week 13:** Explore amino acid properties for IC50 graphs part 2. Train and validate k-NN classifier on clustered embeddings. Start preparing project report. 
 **Week 14:** Finalize analysis, visualize findings, and prepare project report.  
 
 ### Organization within the Team:
 - **Team A:** (Viola, Tancredi & Alexis)
    - W11: Generate IC50 graphs for selected reference-mutant groups.  
    - W12: Explore amino acid properties for IC50 graphs using hydrophobic values.  
-   - W13: Explore amino acid properties for IC50 graphs using ESM2.  
+   - W13: Explore amino acid properties for IC50 graphs using ESM2 and start preparing project report.  
    - W14: Finalize analysis, visualize findings, and prepare project report.  
 - **Team B:** (Riccardo & Abigail)  
    - W11: Test embedding models, apply dimensionality reduction, and visualize clusters.  
