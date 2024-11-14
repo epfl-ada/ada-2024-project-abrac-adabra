@@ -45,7 +45,7 @@ No additional datasets are currently proposed. However, pre-trained models for s
    - W14: Finalize analysis, visualize findings, and prepare project report.  
 
 
-
+## Usage
 ```bash
 # clone project
 git clone git@github.com:epfl-ada/ada-2024-homework-1-abrac-adabra.git
