@@ -28,8 +28,8 @@ No additional datasets are currently proposed. However, pre-trained models for s
 **Week 9:** Standardize mutation representation in dataset and conduct initial IC50 analysis. [Already done]  
 **Week 10:** Homework 2  
 **Week 11:** Generate IC50 graphs for selected reference-mutant groups. Test embedding models, apply dimensionality reduction, and visualize clusters.  
-**Week 12:** Explore amino acid properties for IC50 graphs.  
-**Week 13:** Train and validate k-NN classifier on clustered embeddings.  
+**Week 12:** Explore amino acid properties for IC50 graphs part 1.   
+**Week 13:** Explore amino acid properties for IC50 graphs part 2. Train and validate k-NN classifier on clustered embeddings.  
 **Week 14:** Finalize analysis, visualize findings, and prepare project report.  
 
 ### Organization within the Team:
