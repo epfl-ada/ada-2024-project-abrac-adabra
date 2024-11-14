@@ -2,7 +2,7 @@
 # Deciphering Protein-Ligand Binding Dynamics: Analyzing Mutation Effects in BindingDB
 
 ## Abstract:
-This project aims to investigate how mutations in protein sequences affect ligand binding affinities, focusing on reference-mutant groups with a shared ligand. To identify mutation positions and types, we will use an alignment method that compares each mutated sequence to a reference. Potential key domains within the reference protein can be identified by plotting IC50 values against mutation positions and incorporating additional data on mutation characteristics, such as occurrence probability and chemical properties.
+This project aims to investigate how mutations in protein sequences affect ligand binding affinities, focusing on reference-mutant groups with a shared ligand. To identify mutation positions and types, we will use an alignment method that compares each mutated sequence to the reference. Potential key domains within the reference protein can be identified by plotting IC50 values against mutation positions and incorporating additional data on mutation characteristics, such as occurrence probability and chemical properties.
 Additionally, we aim to develop a tool that assists researchers within the ligand space, replacing the usual resource-intensive, blind search with a protein-specific approach. In that aim, we will embed proteins into an euclidean space using a language model and cluster them into a low-dimensional space for visualization. Using their best-binding ligands as a label and after clustering ligands into coarse groups, we will train a classifier outputting a potential ligand group given a protein sequence.
 
 ### Research Questions:
