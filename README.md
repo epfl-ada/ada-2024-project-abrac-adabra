@@ -25,23 +25,23 @@ No additional datasets are currently proposed. However, pre-trained models for s
 5) **Clustering and classification:** We want to use the clusters found in the low-dimensional ligand space through k-means as labels for the protein representations. We will use those labels to train a k-NN classifier and identify binding neighborhoods in the low-dimensional protein space, and infer potential ligands for new proteins.
 
 ### Proposed Timeline:
-**Week 9:** Standardize mutation representation in dataset and conduct initial IC50 analysis. Test embedding models, apply dimensionality reduction, and visualize clusters. [Already done]  
+**Week 9:** Standardize mutation representation in dataset and conduct initial IC50 analysis. Test embedding models, apply dimensionality reduction, and visualize clusters. [Already done]   
 **Week 10:** Homework 2  
-**Week 11:** Generate IC50 graphs for selected reference-mutant groups. Train and validate k-NN classifier on clustered embeddings.
+**Week 11:** Generate IC50 graphs for selected reference-mutant groups. Train and validate k-NN classifier on clustered embeddings.  
 **Week 12:** Explore amino acid properties for IC50 graphs part 1.   
 **Week 13:** Explore amino acid properties for IC50 graphs part 2. Train and validate k-NN classifier on clustered embeddings. Start preparing project report. 
 **Week 14:** Finalize analysis, visualize findings, and prepare project report.  
 
 ### Organization within the Team:
-- **Team A:** (Viola, Tancredi & Alexis)
+- **Team A:** (Viola, Tancredi & Alexis)  
    - W11: Generate IC50 graphs for selected reference-mutant groups.  
    - W12: Explore amino acid properties for IC50 graphs using hydrophobic values.  
    - W13: Explore amino acid properties for IC50 graphs using ESM2 and start preparing project report.  
    - W14: Finalize analysis, visualize findings, and prepare project report.  
 - **Team B:** (Riccardo & Abigail)  
-   - W11: Train and validate k-NN classifier on clustered embeddings.
-   - W12: 
-   - W13:
+   - W11: Train and validate k-NN classifier on clustered embeddings.  
+   - W12:   
+   - W13:  
    - W14: Finalize analysis, visualize findings, and prepare project report.  
 
 
