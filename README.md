@@ -38,7 +38,7 @@ No additional datasets are currently proposed. However, pre-trained models for s
    - W12: Explore amino acid properties for IC50 graphs using hydrophobic values.  
    - W13: Explore amino acid properties for IC50 graphs using ESM2 and start preparing project report.  
    - W14: Finalize analysis, visualize findings, and prepare project report.  
-- **Team B:** (Riccardo & Abigail)  
+- **Team B:** (Riccardo & Abigaïl)  
    - W11: Train and validate k-NN classifier on clustered embeddings.  
    - W12:   
    - W13:  
