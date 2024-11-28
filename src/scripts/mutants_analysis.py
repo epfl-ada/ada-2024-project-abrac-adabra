@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
-import json
 import random
 
 
@@ -26,17 +25,15 @@ def compute_differences(sequence_1, sequence_2):
     return align_array, positions[0]
 
 
-def get_differences(reference_protein, mutants_list_str, sequences_list_str):
+def get_differences(reference_protein, mutants_list, sequences_list):
     """
     Compute the differences between two sequences by aligning the two sequences.
     :param reference_protein: name of the reference protein.
-    :param mutants_list_str: list of names of protein mutants.
-    :param sequences_list_str: list of sequences.
+    :param mutants_list: list of names of protein mutants.
+    :param sequences_list: list of sequences.
     :return: DataFrame containing the mutant name, the alignment of the reference, the alignment of the mutant and the
     positions at which there is a difference in the alignments.
     """
-    mutants_list = json.loads(mutants_list_str.replace("'", '"'))
-    sequences_list = json.loads(sequences_list_str.replace("'", '"'))
     reference_index = mutants_list.index(reference_protein)
     reference_sequence = sequences_list[reference_index]
 
@@ -104,12 +101,13 @@ def plot_mutants_graph(row, df_merged):
     :param df_merged: DataFrame containing the BindingDB information.
     :returns: DataFrame used for plotting.
     """
-    # Extract mutant lists and ligand
-    mutants_list = json.loads(row['Target Names'].replace("'", '"'))
-    ligand = row['Ligand SMILES']
-
     # Find ic50 values associated with the mutants and the reference protein
-    ic50_df = find_ic50(df_merged, mutants_list, ligand)
+    ic50_df = find_ic50(df_merged, row['Target Names'], row['Ligand SMILES'])
+
+    if not ic50_df.index.is_unique:
+        print('For this ligand-protein pair there are multiple values of IC50 and we decided to drop this case.')
+        return None
+
     reference_ic50 = ic50_df.loc[row['WT Target Name']]
     ic50_df = ic50_df - reference_ic50
 
@@ -121,7 +119,7 @@ def plot_mutants_graph(row, df_merged):
     differences['Colour'] = random.sample(all_colors, differences.shape[0])
 
     # Explode the DataFrame
-    differences_explode = differences.explode('Positions')
+    differences_explode = differences.explode('Positions').dropna()
 
     # Define the type of mutation for later visualization
     differences_explode[['Type', 'Mutation']] = differences_explode.apply(define_mutation, axis=1, result_type='expand')

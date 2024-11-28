@@ -1,4 +1,5 @@
 import unittest
+import ast
 import numpy as np
 import pandas as pd
 from src.scripts.mutants_analysis import get_differences, plot_mutants_graph
@@ -11,6 +12,9 @@ class Test(unittest.TestCase):
         Testing the difference between "['Tyrosine-protein kinase BTK', 'Tyrosine-protein kinase BTK [C481S]']"
         """
         df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
         row = df.iloc[46]
         differences = get_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
@@ -24,6 +28,9 @@ class Test(unittest.TestCase):
         Testing the difference between "['Beta-secretase 1', 'Beta-secretase 1 [1-460]']"
         """
         df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
         row = df.iloc[145]
         differences = get_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
@@ -37,6 +44,9 @@ class Test(unittest.TestCase):
         Testing the difference between "['Coagulation factor XIII A chain', 'Coagulation factor XIII A chain [Q652E]']"
         """
         df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
         row = df.iloc[161]
         differences = get_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
@@ -52,6 +62,9 @@ class Test(unittest.TestCase):
         'Proto-oncogene tyrosine-protein kinase ROS [L2026M]']"
         """
         df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
         row = df.iloc[189]
         differences = get_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
@@ -81,6 +94,9 @@ class Test(unittest.TestCase):
         'Proto-oncogene tyrosine-protein kinase receptor Ret [V804M]']"
         """
         df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
         row = df.iloc[267]
         differences = get_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
@@ -118,6 +134,9 @@ class Test(unittest.TestCase):
         Testing the difference between "['RAC-alpha serine/threonine-protein kinase', 'RAC-alpha serine/threonine-protein kinase [139-480,S378A,S381A,T450D,S473D]']"
         """
         df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
         row = df.iloc[0]
         differences = get_differences(row['WT Target Name'], row['Target Names'], row['BindingDB Target Chain Sequence'])
         self.assertEqual(differences.shape[0], 1)
@@ -141,6 +160,10 @@ class Test(unittest.TestCase):
     def test_graph_mutants(self):
         df_mutants = pd.read_csv('../data/mutants.csv')
         df_merged = pd.read_csv('../data/merged_df.csv')
-        row = df_mutants.iloc[267]
-        print(row)
-        plot_mutants_graph(row, df_merged)
+        df_mutants['Target Names'] = df_mutants['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df_mutants['BindingDB Target Chain Sequence'] = df_mutants['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
+
+        for index, row in df_mutants.iterrows():
+            if len(row['Target Names']) > 3:
+                plot_mutants_graph(row, df_merged)
