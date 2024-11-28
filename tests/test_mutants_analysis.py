@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 import pandas as pd
-from src.scripts.mutants_analysis import get_differences
+from src.scripts.mutants_analysis import get_differences, plot_mutants_graph
 
 
 class Test(unittest.TestCase):
@@ -36,7 +36,6 @@ class Test(unittest.TestCase):
         """
         Testing the difference between "['Coagulation factor XIII A chain', 'Coagulation factor XIII A chain [Q652E]']"
         """
-        file_path = '../data/merged_df.csv'
         df = pd.read_csv('../data/mutants.csv')
         row = df.iloc[161]
         differences = get_differences(row['WT Target Name'], row['Target Names'],
@@ -138,3 +137,10 @@ class Test(unittest.TestCase):
         # Position 472
         self.assertEqual(differences['Alignment Reference'][0][472], 'S')
         self.assertEqual(differences['Alignment Mutant'][0][472], 'D')
+
+    def test_graph_mutants(self):
+        df_mutants = pd.read_csv('../data/mutants.csv')
+        df_merged = pd.read_csv('../data/merged_df.csv')
+        row = df_mutants.iloc[267]
+        print(row)
+        plot_mutants_graph(row, df_merged)

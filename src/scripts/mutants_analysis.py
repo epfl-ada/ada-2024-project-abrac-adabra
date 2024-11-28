@@ -1,7 +1,10 @@
 from Bio import Align
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import json
+import random
 
 
 def compute_differences(sequence_1, sequence_2):
@@ -52,3 +55,82 @@ def get_differences(reference_protein, mutants_list_str, sequences_list_str):
         })
 
     return pd.DataFrame(comparison_results)
+
+
+def find_ic50(df_merged, proteins, ligand):
+    """
+    Find IC50 values associated with the given protein list and ligands.
+    :param df_merged: DataFrame with BindingDB information.
+    :param proteins: list of proteins names.
+    :param ligand: ligand smile.
+    :return: Series containing IC50 values for each protein in the list and the given ligand.
+    """
+    return df_merged[(df_merged['Ligand SMILES'] == ligand) &
+                     (df_merged['Target Name'].isin(proteins))].set_index('Target Name')['IC50 (nM)']
+
+
+def plot_ic50_graph(df):
+    """
+    Plot graph where the x-axis represents the amino acid sequence, and the y-axis represent the difference IC50 value
+    :param df: DataFrame containing the columns Positions, Colours and Type
+    """
+    plt.figure(figsize=(8, 6))
+    plt.scatter(df['Positions'], df['IC50'], color=df['Colour'], alpha=0.75)
+
+    plt.xlabel('Amino Acid Position')
+    plt.ylabel('Variation in IC50 Value')
+    plt.title('Variation in IC50 Values by Amino Acid Position')
+    plt.grid(True)
+    plt.show()
+
+
+def define_mutation(row):
+    """
+    Define for the given row, the type of mutation (gap or mutation) and if it is a substitution,
+    the previous and current amino acids.
+    :param row: row of a dataframe.
+    :return: the first value is gap or mutation and the second value is the exact substitution that occurred.
+    """
+    if row['Alignment Mutant'][row['Positions']] == '-' or row['Alignment Reference'][row['Positions']] == '-':
+        return 'gap', None
+    else:
+        return 'substitution', f"{row['Alignment Mutant'][row['Positions']]} -> {row['Alignment Reference'][row['Positions']]}"
+
+
+def plot_mutants_graph(row, df_merged):
+    """
+    Plot IC50 graph for a specific row of the mutants dataframe.
+    :param row: selected row of the mutants dataframe to plot.
+    :param df_merged: DataFrame containing the BindingDB information.
+    :returns: DataFrame used for plotting.
+    """
+    # Extract mutant lists and ligand
+    mutants_list = json.loads(row['Target Names'].replace("'", '"'))
+    ligand = row['Ligand SMILES']
+
+    # Find ic50 values associated with the mutants and the reference protein
+    ic50_df = find_ic50(df_merged, mutants_list, ligand)
+    reference_ic50 = ic50_df.loc[row['WT Target Name']]
+    ic50_df = ic50_df - reference_ic50
+
+    # Get position with differences
+    differences = get_differences(row['WT Target Name'], row['Target Names'], row['BindingDB Target Chain Sequence'])
+
+    # Set colours
+    all_colors = list(mcolors.CSS4_COLORS.keys())
+    differences['Colour'] = random.sample(all_colors, differences.shape[0])
+
+    # Explode the DataFrame
+    differences_explode = differences.explode('Positions')
+
+    # Define the type of mutation for later visualization
+    differences_explode[['Type', 'Mutation']] = differences_explode.apply(define_mutation, axis=1, result_type='expand')
+    differences_explode = differences_explode.drop(['Alignment Reference', 'Alignment Mutant'], axis=1)
+
+    # Add the corresponding variation of IC50 value
+    differences_explode['IC50'] = differences_explode['Mutant Name'].map(ic50_df)
+
+    # Plot the graph
+    plot_ic50_graph(differences_explode)
+
+    return differences_explode

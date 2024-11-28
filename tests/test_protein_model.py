@@ -63,5 +63,3 @@ class Test(unittest.TestCase):
             x = last_hidden_states.detach()
             x = x.mean(axis=1)
             self.assertTrue(torch.all(torch.eq(x, self.model.get_embeddings(seq))))
-
-
