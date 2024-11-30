@@ -66,17 +66,26 @@ def find_ic50(df_merged, proteins, ligand):
                      (df_merged['Target Name'].isin(proteins))].set_index('Target Name')['IC50 (nM)']
 
 
-def plot_ic50_graph(df):
+def plot_ic50_graph(df, wt_name):
     """
     Plot graph where the x-axis represents the amino acid sequence, and the y-axis represent the difference IC50 value
     :param df: DataFrame containing the columns Positions, Colours and Type
     """
     plt.figure(figsize=(8, 6))
-    plt.scatter(df['Positions'], df['IC50'], color=df['Colour'], alpha=0.75)
+    df['marker'] =df.Type.apply(lambda x: 'x' if x=='substitution' else 'o')
+    seen_mutants = set()
+    for _, row in df.iterrows():
+        mutant = row['Mutant Name'].replace(wt_name, '')
+        if mutant not in seen_mutants:
+            plt.scatter(row['Positions'], row['IC50'], marker=row.marker, s=100, color=row['Colour'], alpha=0.75, label=mutant)
+            seen_mutants.add(mutant)
+        else:
+            plt.scatter(row['Positions'], row['IC50'], marker= row.marker, s=100, color=row['Colour'], alpha=0.75)
 
     plt.xlabel('Amino Acid Position')
     plt.ylabel('Variation in IC50 Value')
-    plt.title('Variation in IC50 Values by Amino Acid Position')
+    plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}')
+    plt.legend()
     plt.grid(True)
     plt.show()
 
@@ -129,6 +138,6 @@ def plot_mutants_graph(row, df_merged):
     differences_explode['IC50'] = differences_explode['Mutant Name'].map(ic50_df)
 
     # Plot the graph
-    plot_ic50_graph(differences_explode)
+    plot_ic50_graph(differences_explode, row['WT Target Name'])
 
     return differences_explode
