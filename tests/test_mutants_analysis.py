@@ -2,7 +2,8 @@ import unittest
 import ast
 import numpy as np
 import pandas as pd
-from src.scripts.mutants_analysis import get_differences, plot_mutants_graph
+from src.scripts.mutants_analysis import (compute_reference_mutant_differences, plot_ic50_graph_with_probabilities,
+                                          plot_ic50_graph)
 
 
 class Test(unittest.TestCase):
@@ -16,7 +17,7 @@ class Test(unittest.TestCase):
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
         row = df.iloc[46]
-        differences = get_differences(row['WT Target Name'], row['Target Names'],
+        differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
         self.assertEqual(differences.shape[0], 1)
         self.assertEqual(differences['Positions'][0], np.array([480]))
@@ -32,7 +33,7 @@ class Test(unittest.TestCase):
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
         row = df.iloc[145]
-        differences = get_differences(row['WT Target Name'], row['Target Names'],
+        differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
         self.assertEqual(differences.shape[0], 1)
         self.assertTrue(np.array_equal(differences['Positions'][0], np.array(range(460, 501))))
@@ -48,7 +49,7 @@ class Test(unittest.TestCase):
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
         row = df.iloc[161]
-        differences = get_differences(row['WT Target Name'], row['Target Names'],
+        differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
         self.assertEqual(differences.shape[0], 1)
         self.assertTrue(np.array_equal(differences['Positions'][0], np.array([651])))
@@ -66,7 +67,7 @@ class Test(unittest.TestCase):
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
         row = df.iloc[189]
-        differences = get_differences(row['WT Target Name'], row['Target Names'],
+        differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
         self.assertEqual(differences.shape[0], 3)
         # Check first pair
@@ -98,7 +99,7 @@ class Test(unittest.TestCase):
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
         row = df.iloc[267]
-        differences = get_differences(row['WT Target Name'], row['Target Names'],
+        differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
         # Check the number of pairs in the dataframe
         self.assertEqual(differences.shape[0], 5)
@@ -138,7 +139,7 @@ class Test(unittest.TestCase):
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
         row = df.iloc[0]
-        differences = get_differences(row['WT Target Name'], row['Target Names'], row['BindingDB Target Chain Sequence'])
+        differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'], row['BindingDB Target Chain Sequence'])
         self.assertEqual(differences.shape[0], 1)
         self.assertTrue(np.array_equal(differences['Positions'][0], np.append(np.arange(138), [377, 380, 449, 472])))
         # Position 377
@@ -157,13 +158,16 @@ class Test(unittest.TestCase):
         self.assertEqual(differences['Alignment Reference'][0][472], 'S')
         self.assertEqual(differences['Alignment Mutant'][0][472], 'D')
 
-    def test_graph_mutants(self):
-        df_mutants = pd.read_csv('../data/mutants.csv')
-        df_merged = pd.read_csv('../data/merged_df.csv')
-        df_mutants['Target Names'] = df_mutants['Target Names'].apply(lambda x: ast.literal_eval(x))
-        df_mutants['BindingDB Target Chain Sequence'] = df_mutants['BindingDB Target Chain Sequence'].apply(
+    def test_1(self):
+        df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
 
-        for index, row in df_mutants.iterrows():
-            if len(row['Target Names']) > 3:
-                plot_mutants_graph(row, df_merged)
+        df_merged = pd.read_csv('../data/merged_df.csv')
+
+        for index, row in df.iterrows():
+            if len(row['Target Names']) > 10:
+                plot_ic50_graph(row, df_merged)
+                df_test = plot_ic50_graph_with_probabilities(row, df_merged)
+                wt_name = row['WT Target Name']

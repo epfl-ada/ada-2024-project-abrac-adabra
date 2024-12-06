@@ -2,9 +2,11 @@ from Bio import Align
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import random
 from src.models.ProteinModel import ProteinModel
+import seaborn as sns
 
 
 def compute_alignment_differences(sequence_1, sequence_2):
@@ -81,11 +83,16 @@ def define_mutation(row):
 
 
 def compute_probability_variation(row, model):
+    """
+    Compute the difference between probabilities given from ESM2.
+    :param row: row of the dataframe with the mutation or gap.
+    :param model: ESM2.
+    """
     if row['Type'] == 'substitution':
         probabilities = pd.DataFrame(model.get_probabilities_unmasked(row['Alignment Reference'], row['Positions']))
         return probabilities[probabilities['token_str'] == row['Mutation'][5]]['score'].values[0] - probabilities[probabilities['token_str'] == row['Mutation'][0]]['score'].values[0]
     else:
-        return None
+        return 0
 
 
 def compute_variation_ic50(row, df_merged):
@@ -144,25 +151,26 @@ def plot_ic50_graph(row, df_merged):
         return None
 
     plt.figure(figsize=(8, 6))
-    df['marker'] =df.Type.apply(lambda x: 'x' if x=='substitution' else 'o')
+    df['Marker'] = df.Type.apply(lambda x: 'x' if x == 'substitution' else 'o')
     seen_mutants = set()
     for _, row in df.iterrows():
         mutant = row['Mutant Name'].replace(wt_name, '')
         if mutant not in seen_mutants:
-            plt.scatter(row['Positions'], row['IC50'], marker=row.marker, s=100, color=row['Colour'], alpha=0.75, label=mutant)
+            plt.scatter(row['Positions'], row['IC50'], marker=row.Marker, s=100, color=row['Colour'], alpha=0.75, label=mutant)
             seen_mutants.add(mutant)
         else:
-            plt.scatter(row['Positions'], row['IC50'], marker= row.marker, s=100, color=row['Colour'], alpha=0.75)
+            plt.scatter(row['Positions'], row['IC50'], marker=row.Marker, s=100, color=row['Colour'], alpha=0.75)
 
     plt.xlabel('Amino Acid Position')
     plt.ylabel('Variation in IC50 Value')
     plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}')
     plt.legend()
     plt.grid(True)
+    plt.tight_layout()
     plt.show()
 
 
-def plot_ic50_graph_with_probabilities(row, df_merged):
+def plot_ic50_graph_with_probabilities(row, df_merged, drop=True):
     """
     Plot graph where the x-axis represents the amino acid sequence, and the y-axis represent the difference IC50 value
     where the colours represent the ESM2 variations in probability
@@ -172,24 +180,35 @@ def plot_ic50_graph_with_probabilities(row, df_merged):
     wt_name = row['WT Target Name']
     df = compute_variation_ic50(row, df_merged)
 
+    # Do not plot if the case was dropped
     if df is None:
         return None
 
-    plt.figure(figsize=(8, 6))
-    df['marker'] =df.Type.apply(lambda x: 'x' if x=='substitution' else 'o')
-    seen_mutants = set()
-    for _, row in df.iterrows():
-        mutant = row['Mutant Name'].replace(wt_name, '')
-        if mutant not in seen_mutants:
-            scatter = plt.scatter(row['Positions'], row['IC50'], marker=row.marker, s=100, color=row['Colour'], alpha=0.75, label=mutant)
-            seen_mutants.add(mutant)
-        else:
-            scatter = plt.scatter(row['Positions'], row['IC50'], marker=row.marker, s=100, color=row['Colour'], alpha=0.75)
+    df['Marker'] = df.Type.apply(lambda x: 'X' if x == 'substitution' else 'o')
 
+    if drop:
+        df = df.drop(df['Marker'] == 'o', axis=0)
+
+    sns.set(style="whitegrid")
+
+    g = sns.scatterplot(
+        data=df,
+        x="Positions",
+        y="IC50",
+        hue="Probability",
+        palette="viridis",
+        style="Marker",
+        markers=list(df['Marker'])
+    )
+
+    norm = plt.Normalize(df['Probability'].min(), df['Probability'].max())
+    sm = plt.cm.ScalarMappable(cmap="viridis", norm=norm)
+    cbar = plt.colorbar(sm, ax=g)
+    cbar.set_label("Difference in ESM2 Probability", fontsize=10)
+
+    plt.legend().remove()
     plt.xlabel('Amino Acid Position')
     plt.ylabel('Variation in IC50 Value')
-    plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}')
-    plt.legend()
-    plt.grid(True)
+    plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=10)
+    plt.tight_layout()
     plt.show()
-
