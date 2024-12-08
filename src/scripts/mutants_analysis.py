@@ -77,7 +77,7 @@ def define_mutation(row):
     :return: the first value is gap or mutation and the second value is the exact substitution that occurred.
     """
     if row['Alignment Mutant'][row['Positions']] == '-' or row['Alignment Reference'][row['Positions']] == '-':
-        return 'gap', None
+        return 'gap', 'Deletion'
     else:
         return 'substitution', f"{row['Alignment Reference'][row['Positions']]} -> {row['Alignment Mutant'][row['Positions']]}"
 
@@ -109,9 +109,6 @@ def compute_variation_ic50(row, df_merged):
         print('For this ligand-protein pair there are multiple values of IC50 and we decided to drop this case.')
         return None
 
-    reference_ic50 = ic50_df.loc[row['WT Target Name']]
-    ic50_df = ic50_df - reference_ic50
-
     # Get position with differences
     differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'], row['BindingDB Target Chain Sequence'])
 
@@ -119,14 +116,18 @@ def compute_variation_ic50(row, df_merged):
     all_colors = list(mcolors.CSS4_COLORS.keys())
     differences['Colour'] = random.sample(all_colors, differences.shape[0])
 
+    # Set IC50
+    reference_ic50 = ic50_df.loc[row['WT Target Name']]
+    differences['IC50 Difference'] = differences['Mutant Name'].map(ic50_df - reference_ic50)
+    if reference_ic50 != 0:
+        differences['IC50 Ratio'] = differences['Mutant Name'].map(ic50_df / reference_ic50)
+        differences['IC50 Percentage'] = differences['Mutant Name'].map((ic50_df - reference_ic50) / reference_ic50 * 100)
+
     # Explode the DataFrame
     differences_explode = differences.explode('Positions').dropna()
 
     # Define the type of mutation for later visualization
     differences_explode[['Type', 'Mutation']] = differences_explode.apply(define_mutation, axis=1, result_type='expand')
-
-    # Add the corresponding variation of IC50 value
-    differences_explode['IC50'] = differences_explode['Mutant Name'].map(ic50_df)
 
     # Compute probabilities
     model = ProteinModel(model="facebook/esm2_t6_8M_UR50D")
@@ -138,11 +139,12 @@ def compute_variation_ic50(row, df_merged):
     return differences_explode
 
 
-def plot_ic50_graph(row, df_merged):
+def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference'):
     """
     Plot graph where the x-axis represents the amino acid sequence, and the y-axis represent the difference IC50 value
     :param row: row with information on the reference and mutants.
     :param df_merged: DataFrame containing the columns Positions, Colours and Type.
+    :param ic50_column: column to use as the y-axis for the plot.
     """
     wt_name = row['WT Target Name']
     df = compute_variation_ic50(row, df_merged)
@@ -156,10 +158,10 @@ def plot_ic50_graph(row, df_merged):
     for _, row in df.iterrows():
         mutant = row['Mutant Name'].replace(wt_name, '')
         if mutant not in seen_mutants:
-            plt.scatter(row['Positions'], row['IC50'], marker=row.Marker, s=100, color=row['Colour'], alpha=0.75, label=mutant)
+            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=0.75, label=mutant)
             seen_mutants.add(mutant)
         else:
-            plt.scatter(row['Positions'], row['IC50'], marker=row.Marker, s=100, color=row['Colour'], alpha=0.75)
+            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=0.75)
 
     plt.xlabel('Amino Acid Position')
     plt.ylabel('Variation in IC50 Value')
@@ -170,12 +172,13 @@ def plot_ic50_graph(row, df_merged):
     plt.show()
 
 
-def plot_ic50_graph_with_probabilities(row, df_merged, drop=True):
+def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Difference'):
     """
     Plot graph where the x-axis represents the amino acid sequence, and the y-axis represent the difference IC50 value
     where the colours represent the ESM2 variations in probability
     :param row: row with information on the reference and mutants.
     :param df_merged: DataFrame containing the columns Positions, Colours and Type.
+    :param ic50_column: column to use as the y-axis for the plot.
     """
     wt_name = row['WT Target Name']
     df = compute_variation_ic50(row, df_merged)
@@ -186,15 +189,12 @@ def plot_ic50_graph_with_probabilities(row, df_merged, drop=True):
 
     df['Marker'] = df.Type.apply(lambda x: 'X' if x == 'substitution' else 'o')
 
-    if drop:
-        df = df.drop(df['Marker'] == 'o', axis=0)
-
     sns.set(style="whitegrid")
 
     g = sns.scatterplot(
         data=df,
         x="Positions",
-        y="IC50",
+        y=ic50_column,
         hue="Probability",
         palette="viridis",
         style="Marker",
