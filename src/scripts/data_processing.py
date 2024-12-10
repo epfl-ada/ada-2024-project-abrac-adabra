@@ -35,16 +35,18 @@ def get_protein_name(entry_name):
         print(f"Entry '{entry_name}' not found or an error occurred.")
         return None
     
+print('Loading the Data')
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", message=".*Specify dtype option on import or set low_memory=False.*")
     df = pd.read_csv(data_path, sep='\t', on_bad_lines='skip');
 
+print('Filtering the Data')
 # Focusing on proteins with a single chain
 df = df[df['Number of Protein Chains in Target (>1 implies a multichain complex)'] == 1]
 
 # Selecting a subset of columns of interest
 useful_cols = ['BindingDB Reactant_set_id', 'Ligand SMILES', 'Target Name', 'IC50 (nM)', 
-'BindingDB Target Chain Sequence', 'UniProt (SwissProt) Entry Name of Target Chain', 'Article DOI']
+'BindingDB Target Chain Sequence', 'UniProt (SwissProt) Entry Name of Target Chain']
 
 filtered_df = df[useful_cols]
 filtered_df.set_index('BindingDB Reactant_set_id', inplace=True)
@@ -59,9 +61,11 @@ clean_df = clean_df.dropna(subset=['IC50 (nM)'])
 merged_df = clean_df.groupby(['Ligand SMILES', 'Target Name', 'BindingDB Target Chain Sequence', 
                               'UniProt (SwissProt) Entry Name of Target Chain'])['IC50 (nM)'].median().reset_index()
 
+print('Saving the processed data')
 # Exporting the dataframe to a .csv
-merged_df.to_csv('../data/final_merged_df.csv')
+merged_df.to_csv('../data/merged_df.csv')
 
+print('Processing the data further for mutant analysis')
 # Filtering out proteins that do not have any mutant
 mutants_filtered_df = merged_df.groupby(['Ligand SMILES', 'UniProt (SwissProt) Entry Name of Target Chain']).filter(lambda x: len(x) >= 2)
 
@@ -69,7 +73,6 @@ mutants_filtered_df = merged_df.groupby(['Ligand SMILES', 'UniProt (SwissProt) E
 merged_mutants_filtered_df = mutants_filtered_df.groupby(['Ligand SMILES', 'UniProt (SwissProt) Entry Name of Target Chain']).apply(lambda x: pd.Series({
     'Target Names': list(x['Target Name']),
     'BindingDB Target Chain Sequence': list(x['BindingDB Target Chain Sequence'])})).reset_index()
-merged_mutants_filtered_df.head()
 
 # Applying the "get_protein_name" function to the dataframe to retrieve the wild type Name
 protein_names = {entry: get_protein_name(entry) for entry in merged_mutants_filtered_df['UniProt (SwissProt) Entry Name of Target Chain'].unique()}
@@ -77,5 +80,7 @@ merged_mutants_filtered_df['WT Target Name'] = merged_mutants_filtered_df.apply(
                                  if protein_names.get(x['UniProt (SwissProt) Entry Name of Target Chain'], None) in x['Target Names'] else None, axis=1)
 merged_mutants_filtered_df.dropna(subset=['WT Target Name'], inplace=True)
 
+
 # Exporting the dataframe to a csv file
+print('Saving the mutants data')
 merged_mutants_filtered_df.to_csv('../data/mutants.csv')
