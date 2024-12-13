@@ -1,9 +1,6 @@
 import unittest
 import ast
-import numpy as np
-import pandas as pd
-from src.scripts.mutants_analysis import (compute_reference_mutant_differences, plot_ic50_graph_with_probabilities,
-                                          plot_ic50_graph)
+from src.scripts.mutants_analysis import *
 
 
 class Test(unittest.TestCase):
@@ -158,16 +155,218 @@ class Test(unittest.TestCase):
         self.assertEqual(differences['Alignment Reference'][0][472], 'S')
         self.assertEqual(differences['Alignment Mutant'][0][472], 'D')
 
-    def test_1(self):
+    def test_compute_variation_ic50_1(self):
+        """
+        Testing the difference between "['Tyrosine-protein kinase BTK', 'Tyrosine-protein kinase BTK [C481S]']"
+        """
         df = pd.read_csv('../data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
-
+        row = df.iloc[46]
         df_merged = pd.read_csv('../data/merged_df.csv')
 
-        for index, row in df.iterrows():
-            if len(row['Target Names']) > 10:
-                plot_ic50_graph(row, df_merged)
-                df_test = plot_ic50_graph_with_probabilities(row, df_merged)
-                wt_name = row['WT Target Name']
+        differences_explode, grouped_df = compute_variation_ic50(row, df_merged)
+
+        # Check differences_explode
+        self.assertEqual(differences_explode.shape[0], 1)
+        self.assertEqual((differences_explode.Type == 'substitution').value_counts()[True], 1)
+        self.assertCountEqual(list(differences_explode.loc[differences_explode.Type == 'substitution', 'Mutation']),
+                              ['C -> S'])
+        for _, row in differences_explode.iterrows():
+            self.assertEqual(row.Type, "substitution")
+            self.assertEqual(len(row.Mutation), 6)
+            self.assertEqual(row.Mutation, 'C -> S')
+            self.assertEqual(row['IC50 Difference'], 128.0 - 21.4)
+            self.assertEqual(row['IC50 Ratio'], 128.0 / 21.4)
+            self.assertEqual(row['IC50 Percentage'], (128.0 - 21.4) / 21.4 * 100)
+
+        # Check grouped_df
+        self.assertEqual(grouped_df.shape[0], 1)
+        self.assertEqual((grouped_df.Type == 'substitution').value_counts()[True], 1)
+        self.assertCountEqual(list(grouped_df.loc[grouped_df.Type == 'substitution', 'Mutation']),
+                              ['C -> S'])
+        for _, row in grouped_df.iterrows():
+            self.assertEqual(row.Type, "substitution")
+            self.assertEqual(len(row.Mutation), 6)
+            self.assertEqual(row.Mutation, 'C -> S')
+            self.assertEqual(row['IC50 Difference'], 128.0 - 21.4)
+            self.assertEqual(row['IC50 Ratio'], 128.0 / 21.4)
+            self.assertEqual(row['IC50 Percentage'], (128.0 - 21.4) / 21.4 * 100)
+
+    def test_compute_variation_ic50_2(self):
+        """
+        Testing the difference between "['Beta-secretase 1', 'Beta-secretase 1 [1-460]']"
+        """
+        df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
+        row = df.iloc[145]
+        df_merged = pd.read_csv('../data/merged_df.csv')
+
+        differences_explode, grouped_df = compute_variation_ic50(row, df_merged)
+
+        # Check differences_explode
+        self.assertEqual(differences_explode.shape[0], 41)
+        self.assertEqual((differences_explode.Type == 'gap').value_counts()[True], 41)
+        for _, row in differences_explode.iterrows():
+            self.assertEqual(row.Type, "gap")
+            self.assertEqual(row.Mutation, 'Deletion')
+            self.assertEqual(row['IC50 Difference'], 0)
+            self.assertEqual(row['IC50 Ratio'], 1)
+            self.assertEqual(row['IC50 Percentage'], 0)
+
+        # Check grouped_df
+        self.assertEqual(grouped_df.shape[0], 1)
+        self.assertEqual((grouped_df.Type == 'gap').value_counts()[True], 1)
+        for _, row in grouped_df.iterrows():
+            self.assertEqual(row.Type, "gap")
+            self.assertEqual(row.Mutation, 'Deletion')
+            self.assertTrue(row.Positions == list(range(460, 501)))
+            self.assertEqual(row['IC50 Difference'], 0)
+            self.assertEqual(row['IC50 Ratio'], 1)
+            self.assertEqual(row['IC50 Percentage'], 0)
+
+    def test_compute_variation_ic50_3(self):
+        """
+        Testing the difference between "['Coagulation factor XIII A chain', 'Coagulation factor XIII A chain [Q652E]']"
+        """
+        df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
+        row = df.iloc[161]
+        df_merged = pd.read_csv('../data/merged_df.csv')
+
+        differences_explode, grouped_df = compute_variation_ic50(row, df_merged)
+
+        # Tests on differences_explode
+        self.assertEqual(differences_explode.shape[0], 1)
+        self.assertEqual((differences_explode.Type == 'substitution').value_counts()[True], 1)
+        for _, row in differences_explode.iterrows():
+            self.assertEqual(row.Type, "substitution")
+            self.assertEqual(row.Mutation, 'Q -> E')
+            self.assertEqual(row['IC50 Difference'], 0)
+            self.assertEqual(row['IC50 Ratio'], 1)
+            self.assertEqual(row['IC50 Percentage'], 0)
+
+        # Tests on grouped_df
+        self.assertEqual(grouped_df.shape[0], 1)
+        self.assertEqual((grouped_df.Type == 'substitution').value_counts()[True], 1)
+        for _, row in grouped_df.iterrows():
+            self.assertEqual(row.Type, "substitution")
+            self.assertEqual(row.Mutation, 'Q -> E')
+            self.assertEqual(row['IC50 Difference'], 0)
+            self.assertEqual(row['IC50 Ratio'], 1)
+            self.assertEqual(row['IC50 Percentage'], 0)
+
+    def test_compute_variation_ic50_4(self):
+        """
+        Testing the difference between "['Proto-oncogene tyrosine-protein kinase ROS',
+        'Proto-oncogene tyrosine-protein kinase ROS [D2033N]', 'Proto-oncogene tyrosine-protein kinase ROS [G2032R]',
+        'Proto-oncogene tyrosine-protein kinase ROS [L2026M]']"
+        """
+        df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
+        row = df.iloc[189]
+        df_merged = pd.read_csv('../data/merged_df.csv')
+
+        differences_explode, grouped_df = compute_variation_ic50(row, df_merged)
+
+        # Checking for differences_explode
+        self.assertEqual(differences_explode.shape[0], 3)
+        self.assertEqual((differences_explode.Type == 'substitution').value_counts()[True], 3)
+        for _, row in differences_explode.iterrows():
+            self.assertEqual(row.Type, "substitution")
+            if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [D2033N]':
+                self.assertEqual(row.Mutation, 'D -> N')
+                self.assertEqual(row.Positions, 2032)
+                self.assertEqual(row['IC50 Difference'], 555.0 - 331.0)
+                self.assertEqual(row['IC50 Ratio'], 555.0 / 331.0)
+                self.assertEqual(row['IC50 Percentage'], (555.0 - 331.0) / 331.0 * 100)
+            if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [G2032R]':
+                self.assertEqual(row.Mutation, 'G -> R')
+                self.assertEqual(row.Positions, 2031)
+                self.assertEqual(row['IC50 Difference'], 2188.5 - 331.0)
+                self.assertEqual(row['IC50 Ratio'], 2188.5 / 331.0)
+                self.assertEqual(row['IC50 Percentage'], (2188.5 - 331.0) / 331.0 * 100)
+            if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [L2026M]':
+                self.assertEqual(row.Mutation, 'L -> M')
+                self.assertEqual(row.Positions, 2025)
+                self.assertEqual(row['IC50 Difference'], 2346.5 - 331.0)
+                self.assertEqual(row['IC50 Ratio'], 2346.5 / 331.0)
+                self.assertEqual(row['IC50 Percentage'], (2346.5 - 331.0) / 331.0 * 100)
+
+        # Checking for grouped_df
+        self.assertEqual(grouped_df.shape[0], 3)
+        self.assertEqual((grouped_df.Type == 'substitution').value_counts()[True], 3)
+        for _, row in grouped_df.iterrows():
+            self.assertEqual(row.Type, "substitution")
+            if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [D2033N]':
+                self.assertEqual(row.Mutation, 'D -> N')
+                self.assertEqual(row.Positions, [2032])
+                self.assertEqual(row['IC50 Difference'], 555.0 - 331.0)
+                self.assertEqual(row['IC50 Ratio'], 555.0 / 331.0)
+                self.assertEqual(row['IC50 Percentage'], (555.0 - 331.0) / 331.0 * 100)
+            if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [G2032R]':
+                self.assertEqual(row.Mutation, 'G -> R')
+                self.assertEqual(row.Positions, [2031])
+                self.assertEqual(row['IC50 Difference'], 2188.5 - 331.0)
+                self.assertEqual(row['IC50 Ratio'], 2188.5 / 331.0)
+                self.assertEqual(row['IC50 Percentage'], (2188.5 - 331.0) / 331.0 * 100)
+            if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [L2026M]':
+                self.assertEqual(row.Mutation, 'L -> M')
+                self.assertEqual(row.Positions, [2025])
+                self.assertEqual(row['IC50 Difference'], 2346.5 - 331.0)
+                self.assertEqual(row['IC50 Ratio'], 2346.5 / 331.0)
+                self.assertEqual(row['IC50 Percentage'], (2346.5 - 331.0) / 331.0 * 100)
+
+    def test_compute_variation_ic50_5(self):
+        """
+        Testing the difference between "['RAC-alpha serine/threonine-protein kinase', 'RAC-alpha serine/threonine-protein kinase [139-480,S378A,S381A,T450D,S473D]']"
+        """
+        df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
+        row = df.iloc[0]
+        df_merged = pd.read_csv('../data/merged_df.csv')
+
+        differences_explode, grouped_df = compute_variation_ic50(row, df_merged)
+
+        # Tests for differences_explode
+        self.assertEqual((differences_explode.Type == 'substitution').value_counts()[True], 4)
+        self.assertEqual((differences_explode.Type == 'gap').value_counts()[True], 138)
+        self.assertCountEqual(list(differences_explode.loc[differences_explode.Type == 'substitution', 'Mutation']),
+                              ['S -> A', 'S -> A', 'T -> D', 'S -> D'])
+
+        for _, row in differences_explode.iterrows():
+            if row.Type == 'gap':
+                self.assertEqual(row.Mutation, 'Deletion')
+            else:
+                self.assertEqual(row.Type, "substitution")
+                self.assertEqual(len(row.Mutation), 6)
+            self.assertEqual(row['IC50 Difference'], 0)
+            self.assertEqual(row['IC50 Ratio'], 1)
+            self.assertEqual(row['IC50 Percentage'], 0)
+
+        # Tests for grouped_df
+        self.assertEqual((grouped_df.Type == 'substitution').value_counts()[True], 4)
+        self.assertEqual((grouped_df.Type == 'gap').value_counts()[True], 1)
+        self.assertCountEqual(list(grouped_df.loc[grouped_df.Type == 'substitution', 'Mutation']),
+                              ['S -> A', 'S -> A', 'T -> D', 'S -> D'])
+
+        for _, row in grouped_df.iterrows():
+            if row.Type == 'gap':
+                self.assertEqual(row.Mutation, 'Deletion')
+                self.assertTrue(row.Positions == list(range(0, 138)))
+            else:
+                self.assertEqual(row.Type, "substitution")
+                self.assertEqual(len(row.Mutation), 6)
+            self.assertEqual(row['IC50 Difference'], 0)
+            self.assertEqual(row['IC50 Ratio'], 1)
+            self.assertEqual(row['IC50 Percentage'], 0)
+

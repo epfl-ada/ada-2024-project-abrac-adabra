@@ -124,19 +124,34 @@ def compute_variation_ic50(row, df_merged):
         differences['IC50 Percentage'] = differences['Mutant Name'].map((ic50_df - reference_ic50) / reference_ic50 * 100)
 
     # Explode the DataFrame
-    differences_explode = differences.explode('Positions').dropna()
+    differences_explode = differences.explode('Positions', ignore_index=True).dropna()
 
     # Define the type of mutation for later visualization
     differences_explode[['Type', 'Mutation']] = differences_explode.apply(define_mutation, axis=1, result_type='expand')
 
     # Compute probabilities
     model = ProteinModel(model="facebook/esm2_t6_8M_UR50D")
-    differences_explode['Probability'] = differences_explode.apply(compute_probability_variation, axis=1, args=(model,))
+    differences_explode['Probability Difference'] = differences_explode.apply(compute_probability_variation, axis=1, args=(model,))
 
     # Remove unused columns
     differences_explode.drop(['Alignment Reference', 'Alignment Mutant'], axis=1, inplace=True)
 
-    return differences_explode
+    # Increase the group by one if:
+    # 1) It is a different mutant
+    # 2) It is not a gap
+    # 3) The position difference is greater than 1
+    differences_explode["Group"] = ((differences_explode["Mutant Name"].ne(differences_explode["Mutant Name"].shift()) &
+                                    (differences_explode["Type"] == 'gap') &
+                                    (differences_explode["Positions"].diff() != 1)) |
+                                    (differences_explode["Type"] == 'substitution')).cumsum()
+
+    columns = list(differences_explode.columns)
+    columns.remove('Positions')
+    agg_funcs = {"Positions": list}
+    agg_funcs.update({column: 'first' for column in columns})
+    grouped_df = differences_explode.groupby('Group', as_index=False).agg(agg_funcs)
+
+    return differences_explode, grouped_df
 
 
 def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference'):
@@ -147,7 +162,7 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference'):
     :param ic50_column: column to use as the y-axis for the plot.
     """
     wt_name = row['WT Target Name']
-    df = compute_variation_ic50(row, df_merged)
+    df, _ = compute_variation_ic50(row, df_merged)
 
     if df is None:
         return None
@@ -181,13 +196,19 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
     :param ic50_column: column to use as the y-axis for the plot.
     """
     wt_name = row['WT Target Name']
-    df = compute_variation_ic50(row, df_merged)
+    df, _ = compute_variation_ic50(row, df_merged)
 
     # Do not plot if the case was dropped
     if df is None:
         return None
 
-    df['Marker'] = df.Type.apply(lambda x: 'X' if x == 'substitution' else 'o')
+    x_min = df["Positions"].min()
+    x_max = df["Positions"].max()
+    buffer = (x_max - x_min) * 0.05
+    left_lim = x_min - buffer
+    right_lim = x_max + buffer
+
+    df.drop(df[df['Type'] == 'gap'].index, inplace=True)
 
     sns.set(style="whitegrid")
 
@@ -195,13 +216,13 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
         data=df,
         x="Positions",
         y=ic50_column,
-        hue="Probability",
+        hue="Probability Difference",
         palette="viridis",
-        style="Marker",
-        markers=list(df['Marker'])
+        style="Type",
+        markers={'substitution': 'X'}
     )
 
-    norm = plt.Normalize(df['Probability'].min(), df['Probability'].max())
+    norm = plt.Normalize(df['Probability Difference'].min(), df['Probability Difference'].max())
     sm = plt.cm.ScalarMappable(cmap="viridis", norm=norm)
     cbar = plt.colorbar(sm, ax=g)
     cbar.set_label("Difference in ESM2 Probability", fontsize=10)
@@ -210,5 +231,6 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
     plt.xlabel('Amino Acid Position')
     plt.ylabel('Variation in IC50 Value')
     plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=10)
+    plt.xlim(left_lim, right_lim)
     plt.tight_layout()
     plt.show()
