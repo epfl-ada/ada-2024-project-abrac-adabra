@@ -172,11 +172,11 @@ class Test(unittest.TestCase):
         self.assertEqual(differences_explode.shape[0], 1)
         self.assertEqual((differences_explode.Type == 'substitution').value_counts()[True], 1)
         self.assertCountEqual(list(differences_explode.loc[differences_explode.Type == 'substitution', 'Mutation']),
-                              ['C -> S'])
+                              ['Cysteine -> Serine'])
         for _, row in differences_explode.iterrows():
             self.assertEqual(row.Type, "substitution")
-            self.assertEqual(len(row.Mutation), 6)
-            self.assertEqual(row.Mutation, 'C -> S')
+            self.assertEqual(len(row.Mutation), 18)
+            self.assertEqual(row.Mutation, 'Cysteine -> Serine')
             self.assertEqual(row['IC50 Difference'], 128.0 - 21.4)
             self.assertEqual(row['IC50 Ratio'], 128.0 / 21.4)
             self.assertEqual(row['IC50 Percentage'], (128.0 - 21.4) / 21.4 * 100)
@@ -185,11 +185,11 @@ class Test(unittest.TestCase):
         self.assertEqual(grouped_df.shape[0], 1)
         self.assertEqual((grouped_df.Type == 'substitution').value_counts()[True], 1)
         self.assertCountEqual(list(grouped_df.loc[grouped_df.Type == 'substitution', 'Mutation']),
-                              ['C -> S'])
+                              ['Cysteine -> Serine'])
         for _, row in grouped_df.iterrows():
             self.assertEqual(row.Type, "substitution")
-            self.assertEqual(len(row.Mutation), 6)
-            self.assertEqual(row.Mutation, 'C -> S')
+            self.assertEqual(len(row.Mutation), 18)
+            self.assertEqual(row.Mutation, 'Cysteine -> Serine')
             self.assertEqual(row['IC50 Difference'], 128.0 - 21.4)
             self.assertEqual(row['IC50 Ratio'], 128.0 / 21.4)
             self.assertEqual(row['IC50 Percentage'], (128.0 - 21.4) / 21.4 * 100)
@@ -246,7 +246,7 @@ class Test(unittest.TestCase):
         self.assertEqual((differences_explode.Type == 'substitution').value_counts()[True], 1)
         for _, row in differences_explode.iterrows():
             self.assertEqual(row.Type, "substitution")
-            self.assertEqual(row.Mutation, 'Q -> E')
+            self.assertEqual(row.Mutation, 'Glutamine -> Glutamic Acid')
             self.assertEqual(row['IC50 Difference'], 0)
             self.assertEqual(row['IC50 Ratio'], 1)
             self.assertEqual(row['IC50 Percentage'], 0)
@@ -256,7 +256,7 @@ class Test(unittest.TestCase):
         self.assertEqual((grouped_df.Type == 'substitution').value_counts()[True], 1)
         for _, row in grouped_df.iterrows():
             self.assertEqual(row.Type, "substitution")
-            self.assertEqual(row.Mutation, 'Q -> E')
+            self.assertEqual(row.Mutation, 'Glutamine -> Glutamic Acid')
             self.assertEqual(row['IC50 Difference'], 0)
             self.assertEqual(row['IC50 Ratio'], 1)
             self.assertEqual(row['IC50 Percentage'], 0)
@@ -282,19 +282,19 @@ class Test(unittest.TestCase):
         for _, row in differences_explode.iterrows():
             self.assertEqual(row.Type, "substitution")
             if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [D2033N]':
-                self.assertEqual(row.Mutation, 'D -> N')
+                self.assertEqual(row.Mutation, 'Aspartic Acid -> Asparagine')
                 self.assertEqual(row.Positions, 2032)
                 self.assertEqual(row['IC50 Difference'], 555.0 - 331.0)
                 self.assertEqual(row['IC50 Ratio'], 555.0 / 331.0)
                 self.assertEqual(row['IC50 Percentage'], (555.0 - 331.0) / 331.0 * 100)
             if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [G2032R]':
-                self.assertEqual(row.Mutation, 'G -> R')
+                self.assertEqual(row.Mutation, 'Glycine -> Arginine')
                 self.assertEqual(row.Positions, 2031)
                 self.assertEqual(row['IC50 Difference'], 2188.5 - 331.0)
                 self.assertEqual(row['IC50 Ratio'], 2188.5 / 331.0)
                 self.assertEqual(row['IC50 Percentage'], (2188.5 - 331.0) / 331.0 * 100)
             if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [L2026M]':
-                self.assertEqual(row.Mutation, 'L -> M')
+                self.assertEqual(row.Mutation, 'Leucine -> Methionine')
                 self.assertEqual(row.Positions, 2025)
                 self.assertEqual(row['IC50 Difference'], 2346.5 - 331.0)
                 self.assertEqual(row['IC50 Ratio'], 2346.5 / 331.0)
@@ -306,19 +306,19 @@ class Test(unittest.TestCase):
         for _, row in grouped_df.iterrows():
             self.assertEqual(row.Type, "substitution")
             if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [D2033N]':
-                self.assertEqual(row.Mutation, 'D -> N')
+                self.assertEqual(row.Mutation, 'Aspartic Acid -> Asparagine')
                 self.assertEqual(row.Positions, [2032])
                 self.assertEqual(row['IC50 Difference'], 555.0 - 331.0)
                 self.assertEqual(row['IC50 Ratio'], 555.0 / 331.0)
                 self.assertEqual(row['IC50 Percentage'], (555.0 - 331.0) / 331.0 * 100)
             if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [G2032R]':
-                self.assertEqual(row.Mutation, 'G -> R')
+                self.assertEqual(row.Mutation, 'Glycine -> Arginine')
                 self.assertEqual(row.Positions, [2031])
                 self.assertEqual(row['IC50 Difference'], 2188.5 - 331.0)
                 self.assertEqual(row['IC50 Ratio'], 2188.5 / 331.0)
                 self.assertEqual(row['IC50 Percentage'], (2188.5 - 331.0) / 331.0 * 100)
             if row['Mutant Name'] == 'Proto-oncogene tyrosine-protein kinase ROS [L2026M]':
-                self.assertEqual(row.Mutation, 'L -> M')
+                self.assertEqual(row.Mutation, 'Leucine -> Methionine')
                 self.assertEqual(row.Positions, [2025])
                 self.assertEqual(row['IC50 Difference'], 2346.5 - 331.0)
                 self.assertEqual(row['IC50 Ratio'], 2346.5 / 331.0)
@@ -341,14 +341,14 @@ class Test(unittest.TestCase):
         self.assertEqual((differences_explode.Type == 'substitution').value_counts()[True], 4)
         self.assertEqual((differences_explode.Type == 'gap').value_counts()[True], 138)
         self.assertCountEqual(list(differences_explode.loc[differences_explode.Type == 'substitution', 'Mutation']),
-                              ['S -> A', 'S -> A', 'T -> D', 'S -> D'])
+                              ['Serine -> Alanine', 'Serine -> Alanine', 'Threonine -> Aspartic Acid', 'Serine -> Aspartic Acid'])
 
         for _, row in differences_explode.iterrows():
             if row.Type == 'gap':
                 self.assertEqual(row.Mutation, 'Deletion')
             else:
                 self.assertEqual(row.Type, "substitution")
-                self.assertEqual(len(row.Mutation), 6)
+                self.assertEqual(len(row.Mutation), 26)
             self.assertEqual(row['IC50 Difference'], 0)
             self.assertEqual(row['IC50 Ratio'], 1)
             self.assertEqual(row['IC50 Percentage'], 0)
@@ -357,7 +357,7 @@ class Test(unittest.TestCase):
         self.assertEqual((grouped_df.Type == 'substitution').value_counts()[True], 4)
         self.assertEqual((grouped_df.Type == 'gap').value_counts()[True], 1)
         self.assertCountEqual(list(grouped_df.loc[grouped_df.Type == 'substitution', 'Mutation']),
-                              ['S -> A', 'S -> A', 'T -> D', 'S -> D'])
+                              ['Serine -> Alanine', 'Serine -> Alanine', 'Threonine -> Aspartic Acid', 'Serine -> Aspartic Acid'])
 
         for _, row in grouped_df.iterrows():
             if row.Type == 'gap':
@@ -365,8 +365,10 @@ class Test(unittest.TestCase):
                 self.assertTrue(row.Positions == list(range(0, 138)))
             else:
                 self.assertEqual(row.Type, "substitution")
-                self.assertEqual(len(row.Mutation), 6)
+                self.assertEqual(len(row.Mutation), 26)
             self.assertEqual(row['IC50 Difference'], 0)
             self.assertEqual(row['IC50 Ratio'], 1)
             self.assertEqual(row['IC50 Percentage'], 0)
+
+
 

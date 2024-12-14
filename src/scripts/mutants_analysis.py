@@ -2,11 +2,41 @@ from Bio import Align
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import random
 from src.models.ProteinModel import ProteinModel
 import seaborn as sns
+
+amino_acid_dict = {
+    'A': 'Alanine',
+    'C': 'Cysteine',
+    'D': 'Aspartic Acid',
+    'E': 'Glutamic Acid',
+    'F': 'Phenylalanine',
+    'G': 'Glycine',
+    'H': 'Histidine',
+    'I': 'Isoleucine',
+    'K': 'Lysine',
+    'L': 'Leucine',
+    'M': 'Methionine',
+    'N': 'Asparagine',
+    'P': 'Proline',
+    'Q': 'Glutamine',
+    'R': 'Arginine',
+    'S': 'Serine',
+    'T': 'Threonine',
+    'V': 'Valine',
+    'W': 'Tryptophan',
+    'Y': 'Tyrosine'
+}
+
+
+def convert_aa_names(substitution):
+    if substitution != 'Deletion':
+        aa1 = substitution.split(' -> ')[0]
+        aa2 = substitution.split(' -> ')[1]
+        return f'{amino_acid_dict[aa1]} -> {amino_acid_dict[aa2]}'
+    return substitution
 
 
 def compute_alignment_differences(sequence_1, sequence_2):
@@ -121,6 +151,7 @@ def compute_variation_ic50(row, df_merged):
     differences['IC50 Difference'] = differences['Mutant Name'].map(ic50_df - reference_ic50)
     if reference_ic50 != 0:
         differences['IC50 Ratio'] = differences['Mutant Name'].map(ic50_df / reference_ic50)
+        differences['IC50 Log Ratio'] = differences['Mutant Name'].map(np.log10(ic50_df / reference_ic50))
         differences['IC50 Percentage'] = differences['Mutant Name'].map((ic50_df - reference_ic50) / reference_ic50 * 100)
 
     # Explode the DataFrame
@@ -135,6 +166,8 @@ def compute_variation_ic50(row, df_merged):
 
     # Remove unused columns
     differences_explode.drop(['Alignment Reference', 'Alignment Mutant'], axis=1, inplace=True)
+
+    differences_explode['Mutation'] = differences_explode['Mutation'].apply(convert_aa_names)
 
     # Increase the group by one if:
     # 1) It is a different mutant
@@ -165,7 +198,7 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference'):
     df, _ = compute_variation_ic50(row, df_merged)
 
     if df is None:
-        return None
+        return None, None
 
     plt.figure(figsize=(8, 6))
     df['Marker'] = df.Type.apply(lambda x: 'x' if x == 'substitution' else 'o')
