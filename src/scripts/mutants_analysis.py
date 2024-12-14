@@ -137,7 +137,7 @@ def compute_variation_ic50(row, df_merged):
 
     if not ic50_df.index.is_unique:
         print('For this ligand-protein pair there are multiple values of IC50 and we decided to drop this case.')
-        return None
+        return None, None
 
     # Get position with differences
     differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'], row['BindingDB Target Chain Sequence'])
@@ -198,7 +198,7 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference'):
     df, _ = compute_variation_ic50(row, df_merged)
 
     if df is None:
-        return None, None
+        return None
 
     plt.figure(figsize=(8, 6))
     df['Marker'] = df.Type.apply(lambda x: 'x' if x == 'substitution' else 'o')
