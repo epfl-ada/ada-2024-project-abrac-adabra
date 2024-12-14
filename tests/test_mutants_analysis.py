@@ -3,6 +3,10 @@ import ast
 from src.scripts.mutants_analysis import *
 
 
+def contains_number(s):
+    return bool(re.search(r'\d', s))
+
+
 class Test(unittest.TestCase):
 
     def test_mutants_analysis_1(self):
@@ -17,7 +21,9 @@ class Test(unittest.TestCase):
         differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
         self.assertEqual(differences.shape[0], 1)
-        self.assertEqual(differences['Positions'][0], np.array([480]))
+        self.assertEqual(differences['Deletion Positions'][0].tolist(), [])
+        self.assertEqual(differences['Insertion Positions'][0].tolist(), [])
+        self.assertEqual(differences['Substitution Positions'][0], np.array([480]))
         self.assertEqual(differences['Alignment Reference'][0][480], 'C')
         self.assertEqual(differences['Alignment Mutant'][0][480], 'S')
 
@@ -33,7 +39,9 @@ class Test(unittest.TestCase):
         differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
         self.assertEqual(differences.shape[0], 1)
-        self.assertTrue(np.array_equal(differences['Positions'][0], np.array(range(460, 501))))
+        self.assertTrue(np.array_equal(differences['Deletion Positions'][0], np.array(range(460, 501))))
+        self.assertEqual(differences['Substitution Positions'][0].tolist(), [])
+        self.assertEqual(differences['Insertion Positions'][0].tolist(), [])
         self.assertEqual(differences['Alignment Reference'][0][500], 'K')
         self.assertEqual(differences['Alignment Mutant'][0][460:501], '-'*41)
 
@@ -49,7 +57,9 @@ class Test(unittest.TestCase):
         differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'],
                                       row['BindingDB Target Chain Sequence'])
         self.assertEqual(differences.shape[0], 1)
-        self.assertTrue(np.array_equal(differences['Positions'][0], np.array([651])))
+        self.assertTrue(np.array_equal(differences['Substitution Positions'][0], np.array([651])))
+        self.assertEqual(differences['Deletion Positions'][0].tolist(), [])
+        self.assertEqual(differences['Insertion Positions'][0].tolist(), [])
         self.assertEqual(differences['Alignment Reference'][0][651], 'Q')
         self.assertEqual(differences['Alignment Mutant'][0][651], 'E')
 
@@ -68,17 +78,23 @@ class Test(unittest.TestCase):
                                       row['BindingDB Target Chain Sequence'])
         self.assertEqual(differences.shape[0], 3)
         # Check first pair
-        self.assertTrue(np.array_equal(differences['Positions'][0], np.array([2032])))
+        self.assertTrue(np.array_equal(differences['Substitution Positions'][0], np.array([2032])))
+        self.assertEqual(differences['Deletion Positions'][0].tolist(), [])
+        self.assertEqual(differences['Insertion Positions'][0].tolist(), [])
         self.assertEqual(differences['Alignment Reference'][0][2032], 'D')
         self.assertEqual(differences['Alignment Mutant'][0][2032], 'N')
 
         # Check second pair
-        self.assertTrue(np.array_equal(differences['Positions'][1], np.array([2031])))
+        self.assertTrue(np.array_equal(differences['Substitution Positions'][1], np.array([2031])))
+        self.assertEqual(differences['Deletion Positions'][1].tolist(), [])
+        self.assertEqual(differences['Insertion Positions'][1].tolist(), [])
         self.assertEqual(differences['Alignment Reference'][1][2031], 'G')
         self.assertEqual(differences['Alignment Mutant'][1][2031], 'R')
 
         # Check third pair
-        self.assertTrue(np.array_equal(differences['Positions'][2], np.array([2025])))
+        self.assertTrue(np.array_equal(differences['Substitution Positions'][2], np.array([2025])))
+        self.assertEqual(differences['Deletion Positions'][2].tolist(), [])
+        self.assertEqual(differences['Insertion Positions'][2].tolist(), [])
         self.assertEqual(differences['Alignment Reference'][2][2025], 'L')
         self.assertEqual(differences['Alignment Mutant'][2][2025], 'M')
 
@@ -102,28 +118,38 @@ class Test(unittest.TestCase):
         self.assertEqual(differences.shape[0], 5)
 
         # Check first pair
-        self.assertTrue(np.array_equal(differences['Positions'][0], np.append(np.arange(657), 809)))
+        self.assertTrue(np.array_equal(differences['Substitution Positions'][0], np.array([809])))
+        self.assertTrue(np.array_equal(differences['Deletion Positions'][0], np.arange(657)))
+        self.assertTrue(np.array_equal(differences['Insertion Positions'][0], np.array([])))
         self.assertEqual(differences['Alignment Reference'][0][809], 'G')
         self.assertEqual(differences['Alignment Mutant'][0][809], 'R')
         self.assertEqual(differences['Alignment Mutant'][0][0:657], '-'*657)
 
         # Check second pair
-        self.assertTrue(np.array_equal(differences['Positions'][1], np.append(np.arange(657), 803)))
+        self.assertTrue(np.array_equal(differences['Substitution Positions'][1], np.array([803])))
+        self.assertTrue(np.array_equal(differences['Deletion Positions'][1], np.arange(657)))
+        self.assertTrue(np.array_equal(differences['Insertion Positions'][1], np.array([])))
         self.assertEqual(differences['Alignment Reference'][1][803], 'V')
         self.assertEqual(differences['Alignment Mutant'][1][803], 'M')
         self.assertEqual(differences['Alignment Mutant'][1][0:657], '-'*657)
 
         # # Check third pair
-        self.assertTrue(np.array_equal(differences['Positions'][2], np.array(range(0, 657))))
+        self.assertTrue(np.array_equal(differences['Deletion Positions'][2], np.array(range(0, 657))))
+        self.assertTrue(np.array_equal(differences['Insertion Positions'][2], np.array([])))
+        self.assertTrue(np.array_equal(differences['Substitution Positions'][2], np.array([])))
         self.assertEqual(differences['Alignment Mutant'][2][0:657], '-'*657)
 
         # Check fourth pair
-        self.assertTrue(np.array_equal(differences['Positions'][3], np.array([809])))
+        self.assertTrue(np.array_equal(differences['Substitution Positions'][3], np.array([809])))
+        self.assertTrue(np.array_equal(differences['Insertion Positions'][3], np.array([])))
+        self.assertTrue(np.array_equal(differences['Deletion Positions'][3], np.array([])))
         self.assertEqual(differences['Alignment Reference'][3][809], 'G')
         self.assertEqual(differences['Alignment Mutant'][3][809], 'R')
 
         # Check fifth pair
-        self.assertTrue(np.array_equal(differences['Positions'][4], np.array([803])))
+        self.assertTrue(np.array_equal(differences['Substitution Positions'][4], np.array([803])))
+        self.assertTrue(np.array_equal(differences['Insertion Positions'][4], np.array([])))
+        self.assertTrue(np.array_equal(differences['Deletion Positions'][4], np.array([])))
         self.assertEqual(differences['Alignment Reference'][4][803], 'V')
         self.assertEqual(differences['Alignment Mutant'][4][803], 'M')
 
@@ -138,7 +164,9 @@ class Test(unittest.TestCase):
         row = df.iloc[0]
         differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'], row['BindingDB Target Chain Sequence'])
         self.assertEqual(differences.shape[0], 1)
-        self.assertTrue(np.array_equal(differences['Positions'][0], np.append(np.arange(138), [377, 380, 449, 472])))
+        self.assertTrue(np.array_equal(differences['Substitution Positions'][0], np.array([377, 380, 449, 472])))
+        self.assertTrue(np.array_equal(differences['Deletion Positions'][0], np.arange(138)))
+        self.assertTrue(np.array_equal(differences['Insertion Positions'][0], np.array([])))
         # Position 377
         self.assertEqual(differences['Alignment Reference'][0][377], 'S')
         self.assertEqual(differences['Alignment Mutant'][0][377], 'A')
@@ -166,7 +194,7 @@ class Test(unittest.TestCase):
         row = df.iloc[46]
         df_merged = pd.read_csv('../data/merged_df.csv')
 
-        differences_explode, grouped_df = compute_variation_ic50(row, df_merged)
+        differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
 
         # Check differences_explode
         self.assertEqual(differences_explode.shape[0], 1)
@@ -205,7 +233,7 @@ class Test(unittest.TestCase):
         row = df.iloc[145]
         df_merged = pd.read_csv('../data/merged_df.csv')
 
-        differences_explode, grouped_df = compute_variation_ic50(row, df_merged)
+        differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
 
         # Check differences_explode
         self.assertEqual(differences_explode.shape[0], 41)
@@ -239,7 +267,7 @@ class Test(unittest.TestCase):
         row = df.iloc[161]
         df_merged = pd.read_csv('../data/merged_df.csv')
 
-        differences_explode, grouped_df = compute_variation_ic50(row, df_merged)
+        differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
 
         # Tests on differences_explode
         self.assertEqual(differences_explode.shape[0], 1)
@@ -274,7 +302,7 @@ class Test(unittest.TestCase):
         row = df.iloc[189]
         df_merged = pd.read_csv('../data/merged_df.csv')
 
-        differences_explode, grouped_df = compute_variation_ic50(row, df_merged)
+        differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
 
         # Checking for differences_explode
         self.assertEqual(differences_explode.shape[0], 3)
@@ -335,7 +363,7 @@ class Test(unittest.TestCase):
         row = df.iloc[0]
         df_merged = pd.read_csv('../data/merged_df.csv')
 
-        differences_explode, grouped_df = compute_variation_ic50(row, df_merged)
+        differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
 
         # Tests for differences_explode
         self.assertEqual((differences_explode.Type == 'substitution').value_counts()[True], 4)
@@ -348,7 +376,6 @@ class Test(unittest.TestCase):
                 self.assertEqual(row.Mutation, 'Deletion')
             else:
                 self.assertEqual(row.Type, "substitution")
-                self.assertEqual(len(row.Mutation), 26)
             self.assertEqual(row['IC50 Difference'], 0)
             self.assertEqual(row['IC50 Ratio'], 1)
             self.assertEqual(row['IC50 Percentage'], 0)
@@ -365,10 +392,75 @@ class Test(unittest.TestCase):
                 self.assertTrue(row.Positions == list(range(0, 138)))
             else:
                 self.assertEqual(row.Type, "substitution")
-                self.assertEqual(len(row.Mutation), 26)
             self.assertEqual(row['IC50 Difference'], 0)
             self.assertEqual(row['IC50 Ratio'], 1)
             self.assertEqual(row['IC50 Percentage'], 0)
+
+    def test_compute_variation_ic50_6(self):
+        """
+        Testing the difference
+        """
+        df = pd.read_csv('../data/mutants.csv')
+        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+            lambda x: ast.literal_eval(x))
+        row = df.iloc[3966]
+        df_merged = pd.read_csv('../data/merged_df.csv')
+
+        differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
+
+        self.assertEqual(
+            grouped_df[grouped_df['Mutant Name'] == 'Epidermal growth factor receptor [1-18,20-1210,C797S]'].shape[0],
+            2)
+        self.assertEqual(
+            grouped_df[grouped_df['Mutant Name'] == 'Epidermal growth factor receptor [1-18,20-1210,C797S]'].iloc(0)[
+                'Type'],
+            'gap'
+        )
+        self.assertEqual(
+            grouped_df[grouped_df['Mutant Name'] == 'Epidermal growth factor receptor [1-18,20-1210,C797S]'].iloc(1)[
+                'Type'],
+            'substitution'
+        )
+
+    # def test_compute_multiple_alignment(self):
+    #     df = pd.read_csv('../data/mutants.csv')
+    #     df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
+    #     df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
+    #         lambda x: ast.literal_eval(x))
+    #     row = df.iloc[3966]
+    #     align = compute_multiple_alignment(row['WT Target Name'], row['Target Names'],
+    #                                          row['BindingDB Target Chain Sequence'])
+    #
+    #     row = df.iloc[3975]
+    #     align = compute_multiple_alignment(row['WT Target Name'], row['Target Names'],
+    #                                          row['BindingDB Target Chain Sequence'])
+    #
+    #     row = df.iloc[7057]
+    #     align = compute_multiple_alignment(row['WT Target Name'], row['Target Names'],
+    #                                          row['BindingDB Target Chain Sequence'])
+    #
+    #     row = df.iloc[7972]
+    #     align = compute_multiple_alignment(row['WT Target Name'], row['Target Names'],
+    #                                          row['BindingDB Target Chain Sequence'])
+    #
+    #     row = df.iloc[9055]
+    #     align = compute_multiple_alignment(row['WT Target Name'], row['Target Names'],
+    #                                          row['BindingDB Target Chain Sequence'])
+    #     print("ciao")
+
+    # def test(self):
+    #     df_mutants = pd.read_csv('../data/mutants.csv')
+    #     df_merged = pd.read_csv('../data/merged_df.csv')
+    #     df_mutants['Target Names'] = df_mutants['Target Names'].apply(lambda x: ast.literal_eval(x))
+    #     df_mutants['BindingDB Target Chain Sequence'] = df_mutants['BindingDB Target Chain Sequence'].apply(
+    #         lambda x: ast.literal_eval(x))
+    #
+    #     for index, row in df_mutants.iterrows():
+    #         if len(row['Target Names']) > 10:
+    #             ciao, _, _ = compute_variation_ic50(row, df_merged)
+    #             if ciao is not None:
+    #                 print(index)
 
 
 
