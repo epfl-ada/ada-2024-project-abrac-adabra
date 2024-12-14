@@ -77,7 +77,7 @@ def visualize_ligands(all_smiles):
 
     for idx, smiles in enumerate(all_smiles):
         # Creating and Saving Ligand Representation from SMILES
-        mol = Chem.MolFromSmiles(smiles)
+        mol = Chem.MolFromSmiles(smiles) 
 
         # Generate 3D coordinates for the molecule
         AllChem.EmbedMolecule(mol, randomSeed=42)
