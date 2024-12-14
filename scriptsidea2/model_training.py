@@ -26,6 +26,8 @@ def train_svm(X: np.ndarray, y: np.ndarray, cv=5):
     print("Training SVM...")
     svm_clf = SVC(random_state=17)
     score = cross_val_score(svm_clf, X, y, cv=cv, scoring="balanced_accuracy").mean()
+    score_nb = cross_val_score(svm_clf, X, y, cv=cv, scoring="accuracy").mean()
+    print(f"SVM: CV nb accuracy of {score:.4f}.")
     print(f"SVM: CV balanced accuracy of {score:.4f}.")
     return svm_clf
 

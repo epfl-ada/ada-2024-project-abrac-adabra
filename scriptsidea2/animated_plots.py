@@ -3,8 +3,6 @@ import plotly.io as pio
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 import pandas as pd
-import numpy as np
-
 
 def get_3D_plot_data(plot_type: str):
     if plot_type == "ligands":
@@ -39,8 +37,26 @@ def get_3D_plot_data(plot_type: str):
         },
     )
     fig.update_traces(marker=dict(size=dotsize))
+    
     fig.update_layout(
-        scene=dict(xaxis_title="UMAP 1", yaxis_title="UMAP 2", zaxis_title="UMAP 3"),
+        scene=dict(
+            xaxis=dict(
+                title="UMAP 1", 
+                showgrid=True, 
+                zeroline=True, 
+                showticklabels=True),
+            yaxis=dict(
+                title="UMAP 2", 
+                showgrid=True, 
+                zeroline=True, 
+                showticklabels=True),
+            zaxis=dict(
+                title="UMAP 3", 
+                showgrid=True, 
+                zeroline=True, 
+                showticklabels=True),
+            aspectmode="cube"  
+        ),
         legend_title_text="Class",
     )
 
@@ -51,8 +67,17 @@ def main(plot_name: str):
     if plot_name == "combined_embeddings":
         fig_ligands = get_3D_plot_data("ligands")
         fig_proteins = get_3D_plot_data("proteins")
+        pio.write_html(
+            fig_ligands,
+            file="data/plots/test_liga.html",
+            auto_open=True,
+        )
+        pio.write_html(
+            fig_proteins,
+            file="data/plots/test_prot.html",
+            auto_open=True,
+        )
 
-        # combine the figures to make subplots
         combined_fig = make_subplots(
             rows=1,
             cols=2,
@@ -84,16 +109,23 @@ def main(plot_name: str):
         combined_fig.layout.annotations[1].update(
             text="ESM2 protein embeddings (colored by ligand group)"
         )
-        combined_fig.layout.scene1.xaxis.title.text = "UMAP 1"
-        combined_fig.layout.scene1.yaxis.title.text = "UMAP 2"
-        combined_fig.layout.scene1.zaxis.title.text = "UMAP 3"
-        combined_fig.layout.scene2.xaxis.title.text = "UMAP 1"
-        combined_fig.layout.scene2.yaxis.title.text = "UMAP 2"
-        combined_fig.layout.scene2.zaxis.title.text = "UMAP 3"
+
+        combined_fig.layout['scene1'].update(
+            aspectmode='cube',
+            xaxis_title="UMAP 1",
+            yaxis_title="UMAP 2",
+            zaxis_title="UMAP 3"
+        )
+        combined_fig.layout['scene2'].update(
+            aspectmode='cube',
+            xaxis_title="UMAP 1",
+            yaxis_title="UMAP 2",
+            zaxis_title="UMAP 3"
+        )
 
         pio.write_html(
             combined_fig,
-            file="data/plots/3d_combined_clustering_plot.html",
+            file="data/plots/3d_combined_clustering_plot_squared.html",
             auto_open=True,
         )
     else:
