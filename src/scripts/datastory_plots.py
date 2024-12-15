@@ -38,7 +38,11 @@ def save_dfs_ligands(df_merged, df_mutants):
     :return: interaction pair names of the structure [Ligand SMILES, Uniprot Name of WT]
     """
     saving_folder_dfs = "../data/pair_dfs"
+    if not os.path.exists(saving_folder_dfs):
+            os.makedirs(saving_folder_dfs)
     saving_folder_dfs_prot_viz = "../data/prot_viz"
+    if not os.path.exists(saving_folder_dfs_prot_viz):
+            os.makedirs(saving_folder_dfs_prot_viz)
     pair_numbers = 0
     ligand_smiles = []
     wt_names= []
@@ -56,8 +60,13 @@ def save_dfs_ligands(df_merged, df_mutants):
                 ligand_smiles.append(row['Ligand SMILES'])
                 wt_names.append(row['UniProt (SwissProt) Entry Name of Target Chain'])
                 # Saving df to csv file for easier access later on
+                df_pair['Mutant Name'] = df_pair['Mutant Name'].str.replace('cAMP-dependent protein kinase catalytic subunit alpha', 'KAPCA_BOVIN') 
+                df_pair['Mutant Name'] = df_pair['Mutant Name'].str.replace('Epidermal growth factor receptor', 'EGFR')
                 saving_path_df = os.path.join(saving_folder_dfs, f'interaction_pair{pair_numbers}.csv')
                 df_pair.to_csv(saving_path_df)
+
+                df_protein_viz['Mutant Name'] = df_protein_viz['Mutant Name'].str.replace('cAMP-dependent protein kinase catalytic subunit alpha', 'KAPCA_BOVIN') 
+                df_protein_viz['Mutant Name'] = df_protein_viz['Mutant Name'].str.replace('Epidermal growth factor receptor', 'EGFR')
                 saving_path_df_prot_viz = os.path.join(saving_folder_dfs_prot_viz, f'interaction_pair{pair_numbers}_prot_viz.csv')
                 df_protein_viz.to_csv(saving_path_df_prot_viz)
                 print("Pair information succesfully saved")
@@ -74,6 +83,8 @@ def visualize_ligands(all_smiles):
     """
 
     saving_folder_ligands = "../plots/ligands"
+    if not os.path.exists(saving_folder_ligands):
+            os.makedirs(saving_folder_ligands)
 
     for idx, smiles in enumerate(all_smiles):
         # Creating and Saving Ligand Representation from SMILES
@@ -107,7 +118,7 @@ def visualize_ligands(all_smiles):
         })
 
         # Saving ligand representation
-        saving_path_ligand = os.path.join(saving_folder_ligands, f'ligand_{idx}')
+        saving_path_ligand = os.path.join(saving_folder_ligands, f'ligand_{idx+1}')
 
         viewer.write_html(saving_path_ligand + '.html')
 
@@ -118,6 +129,8 @@ def generate_interactive_ic50_plot():
 
     file_directory = '../data/pair_dfs'
     saving_directory = '../plots'
+    if not os.path.exists(saving_directory):
+            os.makedirs(saving_directory)
 
     buttons = []
     all_traces = []
@@ -133,16 +146,13 @@ def generate_interactive_ic50_plot():
     # Going over every saved interaction df
     for idx, file_name in enumerate(sorted(os.listdir(file_directory))):
         if file_name.endswith('.csv'):
-            print(file_name)
             path = os.path.join(file_directory, file_name)
 
             df_pair = pd.read_csv(path)
 
             # Add traces for the current file
             visibility = []
-            df_pair['Mutant Name'] = df_pair['Mutant Name'].str.replace('cAMP-dependent protein kinase catalytic subunit alpha', 'KAPCA_BOVIN') # TODO move to creation of df
-            df_pair['Mutant Name'] = df_pair['Mutant Name'].str.replace('Epidermal growth factor receptor', 'EGFR') # TODO move to creation of df
-            
+    
             # Add every mutant to the plot
             for mutant_name in df_pair['Mutant Name'].unique():
                 df_subset = df_pair[df_pair['Mutant Name'] == mutant_name]
@@ -224,69 +234,47 @@ def generate_interactive_ic50_plot():
 
     fig.update_layout(coloraxis=dict(
             colorscale='RdBu',cmin=-1,cmax=1,  
-            colorbar=dict(len=0.5, y=0.2)
+            colorbar=dict(len=0.35, y=0.2)
         ))
 
 
     # Save the interactive plot
     fig.write_html(os.path.join(saving_directory, 'interactive_ic50_plot.html'))
 
-# TBD
-def viualize_mutant(protein_file, row=None):
-    view = nv.show_file(protein_file)  # Update with the correct file path
+def visualize_mutants(interaction_pairs_path, df_folder, pdb_files_folder):
+    mutants_infos = {}
+    interaction_pairs = pd.read_csv(interaction_pairs_path)
+    for idx, file_name in enumerate(sorted(os.listdir(df_folder))):
+        df = pd.read_csv(os.path.join(df_folder, file_name))
+        wt_protein_name = interaction_pairs.iloc[idx]['WT protein']
+        view = nv.show_file(os.path.join(pdb_files_folder, f'{wt_protein_name}.pdb'))
+        curr_num_mutants, curr_mutant_names = mutants_infos[wt_protein_name] if wt_protein_name in mutants_infos.keys() else (0, [])
 
-    # Remove default representations
-    if row.mutations is None:
-        print("WT protein")
-    else:
-        print("Mutant: ", row.mutant_name)
-        view.clear_representations()
-        view.add_cartoon(color="#D3D3D3")
-
-        for m in row.mutations:
-            if m[0] == 'Deletion':
-                view.add_cartoon(selection=m[1], color="blue")  # Highlight region 1-18 in blue
+        saving_folder = f"../plots/{wt_protein_name}"
+        if not os.path.exists(saving_folder):
+            os.makedirs(saving_folder)
+        saving_path = os.path.join(saving_folder, f'{wt_protein_name}_mutant_0.html')
+        nv.write_html(saving_path, [view])
+        for c in ['Insertion Positions', 'Deletion Positions', 'Substitution Positions']:
+            df[c] = df[c].apply(lambda x: [int(i) for i in x.strip('[]').split(' ') if i != '' ])
+        for _, row in df.iterrows():
+            if row['Mutant Name'] in curr_mutant_names:
+                print("Mutant viz already saved")
             else:
-                view.add_ball_and_stick(selection=m[1], color="red")  # Highlight residue 858 in red
-    nv.write_html(row.mutant_name + '.html', [view])
+                curr_num_mutants+=1
+                view.clear_representations()
+                view.add_cartoon(color="#D3D3D3")
+                view.add_cartoon(row['Insertion Positions'], color="blue")
+                view.add_cartoon(range(1,150), color="blue")
+                view.add_cartoon(row['Deletion Positions'], color="red")   
+                view.add_ball_and_stick(row['Substitution Positions'], color="green")
 
-def generate_interactive_protein_structure_plot():
-    # Load the PDB file
-    test_df = pd.DataFrame({'mutant_name': ['WT', 'mutant [1-18]', 'mutant [C18->T]', 'mutant [1-18][C21->T]'], 'mutations': [None, ['Deletion', '1-18'], ['C18->T', '18'], [['Deletion', '1-18'], ['C21->T', '21']]]})
+                saving_path = os.path.join(saving_folder, f'{wt_protein_name}_mutant_{curr_num_mutants}.html')
+                nv.write_html(saving_path, [view])
+                curr_mutant_names.append(row['Mutant Name'])
+        mutants_infos.update({wt_protein_name: (curr_num_mutants, curr_mutant_names)})
 
-    for name, r in test_df.iterrows():
-        viualize_mutant('pdb_files/P00533.pdb', r)
-
-def convert_aa_names(string):
-    if string!='Deletion':
-        aa1 = string.split(' -> ')[0]
-        aa2 = string.split(' -> ')[1]
-        return f'{amino_acid_dict[aa1]} -> {amino_acid_dict[aa2]}'
-    else:
-        return 'Deletion'
-
-amino_acid_dict = {
-    'A': 'Alanine',
-    'C': 'Cysteine',
-    'D': 'Aspartic Acid',
-    'E': 'Glutamic Acid',
-    'F': 'Phenylalanine',
-    'G': 'Glycine',
-    'H': 'Histidine',
-    'I': 'Isoleucine',
-    'K': 'Lysine',
-    'L': 'Leucine',
-    'M': 'Methionine',
-    'N': 'Asparagine',
-    'P': 'Proline',
-    'Q': 'Glutamine',
-    'R': 'Arginine',
-    'S': 'Serine',
-    'T': 'Threonine',
-    'V': 'Valine',
-    'W': 'Tryptophan',
-    'Y': 'Tyrosine'
-}
+    return mutants_infos
 
 """
 # Data loading
@@ -307,4 +295,8 @@ print("Saved ligand representations")
 generate_interactive_ic50_plot()
 print("Saved interactive IC50 plot")
 # visualize mutants
+mutants_infos = visualize_mutants('../data/interaction_pairs.csv', '../data/prot_viz', '../data/pdb_files')
+for k, v in mutants_infos.items():
+    pd.DataFrame(v[1]).to_csv(f'../plots/{k}/mutant_names.csv')
+print("Saved interactive mutant visualizations")
 """
