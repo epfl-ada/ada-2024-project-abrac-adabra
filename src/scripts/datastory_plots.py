@@ -61,12 +61,12 @@ def save_dfs_ligands(df_merged, df_mutants):
                 wt_names.append(row['UniProt (SwissProt) Entry Name of Target Chain'])
                 # Saving df to csv file for easier access later on
                 df_pair['Mutant Name'] = df_pair['Mutant Name'].str.replace('cAMP-dependent protein kinase catalytic subunit alpha', 'KAPCA_BOVIN') 
-                df_pair['Mutant Name'] = df_pair['Mutant Name'].str.replace('Epidermal growth factor receptor', 'EGFR')
+                df_pair['Mutant Name'] = df_pair['Mutant Name'].str.replace('Epidermal growth factor receptor', 'EGFR_HUMAN')
                 saving_path_df = os.path.join(saving_folder_dfs, f'interaction_pair{pair_numbers}.csv')
                 df_pair.to_csv(saving_path_df)
 
                 df_protein_viz['Mutant Name'] = df_protein_viz['Mutant Name'].str.replace('cAMP-dependent protein kinase catalytic subunit alpha', 'KAPCA_BOVIN') 
-                df_protein_viz['Mutant Name'] = df_protein_viz['Mutant Name'].str.replace('Epidermal growth factor receptor', 'EGFR')
+                df_protein_viz['Mutant Name'] = df_protein_viz['Mutant Name'].str.replace('Epidermal growth factor receptor', 'EGFR_HUMAN')
                 saving_path_df_prot_viz = os.path.join(saving_folder_dfs_prot_viz, f'interaction_pair{pair_numbers}_prot_viz.csv')
                 df_protein_viz.to_csv(saving_path_df_prot_viz)
                 print("Pair information succesfully saved")
@@ -223,8 +223,8 @@ def generate_interactive_ic50_plot():
         updatemenus=[{
             'buttons': buttons,
             'direction': 'down',
-            'x': 0.7,
-            'y': 1.105,
+            'x': 0.8,
+            'y': 1.115,
             'showactive': True,
             'active': 4
         }],
