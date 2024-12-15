@@ -407,7 +407,7 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
 
     plt.legend().remove()
     plt.xlabel('Amino Acid Position')
-    if y_axis is None:
+    if y_axis is None: 
         plt.ylabel(ic50_column)
     else:
         plt.ylabel(y_axis)
