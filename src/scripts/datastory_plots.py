@@ -122,7 +122,7 @@ def generate_interactive_ic50_plot():
     buttons = []
     all_traces = []
     total_number_of_mutants_to_display = 0
-    for file_name in os.listdir(file_directory):
+    for file_name in sorted(os.listdir(file_directory)):
         if file_name.endswith('.csv'):
             path = os.path.join(file_directory, file_name)
             df_pair = pd.read_csv(path)
@@ -131,8 +131,9 @@ def generate_interactive_ic50_plot():
 
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, shared_yaxes=True, x_title='Mutation Position', y_title='Log Ratio of IC50 values between WT and a given mutant')
     # Going over every saved interaction df
-    for idx, file_name in enumerate(os.listdir(file_directory)):
+    for idx, file_name in enumerate(sorted(os.listdir(file_directory))):
         if file_name.endswith('.csv'):
+            print(file_name)
             path = os.path.join(file_directory, file_name)
 
             df_pair = pd.read_csv(path)
@@ -150,6 +151,7 @@ def generate_interactive_ic50_plot():
                     y=df_subset['IC50 Log Ratio'],
                     mode='markers',
                     name=mutant_name,
+                    marker_color=df_subset['Colour'],
                     hovertemplate=(
                         "<b>Position:</b> %{x}<br>"
                         "<b>IC50 Log Ratio:</b> %{y}<br>"
@@ -157,14 +159,12 @@ def generate_interactive_ic50_plot():
                     ),
                     text=df_subset['Mutant Name'],
                     customdata=df_subset['Mutation'],
-                    
                     visible=False,
-                    
                 )
-                df_subset_no_deletions = df_subset[df_subset.Type !='gap']
+                df_subset_substitutions = df_subset[df_subset.Type =='substitution']
                 trace2 = go.Scatter(
-                    x=df_subset_no_deletions['Positions'],
-                    y=df_subset_no_deletions['IC50 Log Ratio'],  # Replace with your actual parameter
+                    x=df_subset_substitutions['Positions'],
+                    y=df_subset_substitutions['IC50 Log Ratio'],  # Replace with your actual parameter
                     mode='markers',
                     hovertemplate=(
                         "<b>Position:</b> %{x}<br>"
@@ -172,11 +172,11 @@ def generate_interactive_ic50_plot():
                         "<b>Mutation:</b> %{customdata}<br>"
                     ),
                     name=mutant_name,
-                    customdata=df_subset_no_deletions['Mutation'],
+                    customdata=df_subset_substitutions['Mutation'],
                     visible=False,
                     text=None,
                     marker=dict(
-                        color=df_subset_no_deletions['Probability Difference'],  # Color by Other Parameter value
+                        color=df_subset_substitutions['Probability Difference'],  # Color by Other Parameter value
                         coloraxis='coloraxis'  # Choose a color scale to represent intensity
                     ),
                     showlegend=False
