@@ -38,7 +38,7 @@ def save_dfs_ligands(df_merged, df_mutants):
     :return: interaction pair names of the structure [Ligand SMILES, Uniprot Name of WT]
     """
     saving_folder_dfs = "../data/pair_dfs"
-    saving_folder_dfs_test = "../data/test"
+    saving_folder_dfs_prot_viz = "../data/prot_viz"
     pair_numbers = 0
     ligand_smiles = []
     wt_names= []
@@ -47,7 +47,7 @@ def save_dfs_ligands(df_merged, df_mutants):
     for _, row in df_mutants.iterrows():
         # Filter to keep only interaction pairs with at least 10 mutants
         if len(row['Target Names']) > 10:
-            df_pair, test = compute_variation_ic50(row, df_merged)
+            df_pair, _, df_protein_viz = compute_variation_ic50(row, df_merged)
             if df_pair is None:
                 # See P2 first cell for explanation of this problem TODO
                 print("This pair will not be saved due to multiple conflicting values in BindingDB") 
@@ -58,8 +58,8 @@ def save_dfs_ligands(df_merged, df_mutants):
                 # Saving df to csv file for easier access later on
                 saving_path_df = os.path.join(saving_folder_dfs, f'interaction_pair{pair_numbers}.csv')
                 df_pair.to_csv(saving_path_df)
-                saving_path_df_test = os.path.join(saving_folder_dfs_test, f'interaction_pair{pair_numbers}_test.csv')
-                test.to_csv(saving_path_df_test)
+                saving_path_df_prot_viz = os.path.join(saving_folder_dfs_prot_viz, f'interaction_pair{pair_numbers}_prot_viz.csv')
+                df_protein_viz.to_csv(saving_path_df_prot_viz)
                 print("Pair information succesfully saved")
             print("---------------------------------------------------------------------------")
 
