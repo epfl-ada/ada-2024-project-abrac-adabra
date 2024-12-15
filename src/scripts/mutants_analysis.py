@@ -2,7 +2,6 @@ from Bio import Align
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 import random
 from src.models.ProteinModel import ProteinModel
 import seaborn as sns
@@ -31,6 +30,24 @@ amino_acid_dict = {
     'W': 'Tryptophan',
     'Y': 'Tyrosine'
 }
+
+distinct_colors = [
+    "#2274a5",  # Blue
+    "#f75c03",  # Orange
+    "#f1c40f",  # Yellow
+    "#d90368",  # Purple
+    "#00cc66",  # Green
+    "#b388eb",  # Violet
+    "#1d7874",  # Green Blue
+    "#720026",  # Dark Red
+    "#808000",  # Olive
+    "#4361ee",  # Violet Blue
+    "#4cc9f0",  # Light Blue
+    "#a7c957",  # Yellow Green
+    "#ff0054",   # Pink
+    "#ff97b7",   # Light Pink
+    "#2d00f7",  # Blue
+]
 
 
 def convert_aa_names(substitution):
@@ -165,7 +182,6 @@ def compute_reference_mutant_differences(reference_protein, mutants_list, sequen
             if insertion_index[0] != position_1:
                 insertion_index = np.arange(position_1, position_1 + len(insert))
 
-
         # See where deletion or substitutions are considering the reference protein
         deletion_index = np.where(alignment_2_no_insertion == b"-")[0]
         substitution_index = np.where((alignment_2_no_insertion != b"-") & (alignment_2_no_insertion != alignment_1_no_insertion))[0]
@@ -247,8 +263,7 @@ def compute_variation_ic50(row, df_merged):
     differences = compute_reference_mutant_differences(row['WT Target Name'], row['Target Names'], row['BindingDB Target Chain Sequence'])
 
     # Set colours
-    all_colors = list(mcolors.CSS4_COLORS.keys())
-    differences['Colour'] = random.sample(all_colors, differences.shape[0])
+    differences['Colour'] = [distinct_colors[i % len(distinct_colors)] for i in range(differences.shape[0])]
 
     # Set IC50
     reference_ic50 = ic50_df.loc[row['WT Target Name']]
@@ -309,7 +324,7 @@ def compute_variation_ic50(row, df_merged):
     return differences_explode, grouped_df, differences
 
 
-def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference'):
+def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference', title=None, y_axis=None):
     """
     Plot graph where the x-axis represents the amino acid sequence, and the y-axis represent the difference IC50 value
     :param row: row with information on the reference and mutants.
@@ -323,7 +338,7 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference'):
         return None
 
     plt.figure(figsize=(8, 6))
-    df['Marker'] = df.Type.apply(lambda x: 'x' if x == 'substitution' else 'o')
+    df['Marker'] = df.Type.apply(lambda x: 'o' if x == 'substitution' else 'v' if x == 'insertion' else 'x')
     seen_mutants = set()
     for _, row in df.iterrows():
         mutant = row['Mutant Name'].replace(wt_name, '')
@@ -334,21 +349,29 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference'):
             plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=0.75)
 
     plt.xlabel('Amino Acid Position')
-    plt.ylabel('Variation in IC50 Value')
-    plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}')
-    plt.legend()
+    if y_axis is None:
+        plt.ylabel(ic50_column)
+    else:
+        plt.ylabel(y_axis)
+    if title is None:
+        plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+    else:
+        plt.title(f'{title} by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+    plt.legend(bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0.)
     plt.grid(True)
     plt.tight_layout()
     plt.show()
 
 
-def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Difference'):
+def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Difference', title=None, y_axis=None):
     """
     Plot graph where the x-axis represents the amino acid sequence, and the y-axis represent the difference IC50 value
     where the colours represent the ESM2 variations in probability
     :param row: row with information on the reference and mutants.
     :param df_merged: DataFrame containing the columns Positions, Colours and Type.
     :param ic50_column: column to use as the y-axis for the plot.
+    :param title: title of the plot
+    :param y_axis: y-axis for the plot.
     """
     wt_name = row['WT Target Name']
     df, _, _ = compute_variation_ic50(row, df_merged)
@@ -363,7 +386,7 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
     left_lim = x_min - buffer
     right_lim = x_max + buffer
 
-    df.drop(df[df['Type'] == 'gap'].index, inplace=True)
+    df.drop(df[(df['Type'] == 'gap') | (df['Type'] == 'insertion')].index, inplace=True)
 
     sns.set(style="whitegrid")
 
@@ -372,20 +395,26 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
         x="Positions",
         y=ic50_column,
         hue="Probability Difference",
-        palette="viridis",
+        palette="RdBu",
         style="Type",
-        markers={'substitution': 'X'}
+        markers={'substitution': 'o'}
     )
 
-    norm = plt.Normalize(df['Probability Difference'].min(), df['Probability Difference'].max())
-    sm = plt.cm.ScalarMappable(cmap="viridis", norm=norm)
+    norm = plt.Normalize(-1, 1)
+    sm = plt.cm.ScalarMappable(cmap="RdBu", norm=norm)
     cbar = plt.colorbar(sm, ax=g)
     cbar.set_label("Difference in ESM2 Probability", fontsize=10)
 
     plt.legend().remove()
     plt.xlabel('Amino Acid Position')
-    plt.ylabel('Variation in IC50 Value')
-    plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=10)
+    if y_axis is None:
+        plt.ylabel(ic50_column)
+    else:
+        plt.ylabel(y_axis)
+    if title is None:
+        plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+    else:
+        plt.title(f'{title} by Amino Acid Position for mutants of {wt_name}', fontsize=12)
     plt.xlim(left_lim, right_lim)
     plt.tight_layout()
     plt.show()

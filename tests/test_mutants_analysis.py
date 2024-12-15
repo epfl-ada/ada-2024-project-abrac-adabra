@@ -3,10 +3,6 @@ import ast
 from src.scripts.mutants_analysis import *
 
 
-def contains_number(s):
-    return bool(re.search(r'\d', s))
-
-
 class Test(unittest.TestCase):
 
     def test_mutants_analysis_1(self):
@@ -395,45 +391,6 @@ class Test(unittest.TestCase):
             self.assertEqual(row['IC50 Difference'], 0)
             self.assertEqual(row['IC50 Ratio'], 1)
             self.assertEqual(row['IC50 Percentage'], 0)
-
-    # def test_compute_multiple_alignment(self):
-    #     df = pd.read_csv('../data/mutants.csv')
-    #     df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
-    #     df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
-    #         lambda x: ast.literal_eval(x))
-    #     row = df.iloc[3966]
-    #     align = compute_multiple_alignment(row['WT Target Name'], row['Target Names'],
-    #                                          row['BindingDB Target Chain Sequence'])
-    #
-    #     row = df.iloc[3975]
-    #     align = compute_multiple_alignment(row['WT Target Name'], row['Target Names'],
-    #                                          row['BindingDB Target Chain Sequence'])
-    #
-    #     row = df.iloc[7057]
-    #     align = compute_multiple_alignment(row['WT Target Name'], row['Target Names'],
-    #                                          row['BindingDB Target Chain Sequence'])
-    #
-    #     row = df.iloc[7972]
-    #     align = compute_multiple_alignment(row['WT Target Name'], row['Target Names'],
-    #                                          row['BindingDB Target Chain Sequence'])
-    #
-    #     row = df.iloc[9055]
-    #     align = compute_multiple_alignment(row['WT Target Name'], row['Target Names'],
-    #                                          row['BindingDB Target Chain Sequence'])
-    #     print("ciao")
-
-    # def test(self):
-    #     df_mutants = pd.read_csv('../data/mutants.csv')
-    #     df_merged = pd.read_csv('../data/merged_df.csv')
-    #     df_mutants['Target Names'] = df_mutants['Target Names'].apply(lambda x: ast.literal_eval(x))
-    #     df_mutants['BindingDB Target Chain Sequence'] = df_mutants['BindingDB Target Chain Sequence'].apply(
-    #         lambda x: ast.literal_eval(x))
-    #
-    #     for index, row in df_mutants.iterrows():
-    #         if len(row['Target Names']) > 10:
-    #             ciao, _, _ = compute_variation_ic50(row, df_merged)
-    #             if ciao is not None:
-    #                 print(index)
 
 
 
