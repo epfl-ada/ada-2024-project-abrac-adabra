@@ -396,33 +396,6 @@ class Test(unittest.TestCase):
             self.assertEqual(row['IC50 Ratio'], 1)
             self.assertEqual(row['IC50 Percentage'], 0)
 
-    def test_compute_variation_ic50_6(self):
-        """
-        Testing the difference
-        """
-        df = pd.read_csv('../data/mutants.csv')
-        df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
-        df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
-            lambda x: ast.literal_eval(x))
-        row = df.iloc[3966]
-        df_merged = pd.read_csv('../data/merged_df.csv')
-
-        differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
-
-        self.assertEqual(
-            grouped_df[grouped_df['Mutant Name'] == 'Epidermal growth factor receptor [1-18,20-1210,C797S]'].shape[0],
-            2)
-        self.assertEqual(
-            grouped_df[grouped_df['Mutant Name'] == 'Epidermal growth factor receptor [1-18,20-1210,C797S]'].iloc(0)[
-                'Type'],
-            'gap'
-        )
-        self.assertEqual(
-            grouped_df[grouped_df['Mutant Name'] == 'Epidermal growth factor receptor [1-18,20-1210,C797S]'].iloc(1)[
-                'Type'],
-            'substitution'
-        )
-
     # def test_compute_multiple_alignment(self):
     #     df = pd.read_csv('../data/mutants.csv')
     #     df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))

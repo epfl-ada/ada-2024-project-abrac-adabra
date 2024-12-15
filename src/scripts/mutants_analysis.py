@@ -68,7 +68,7 @@ def compute_pairwise_alignment(sequence_1, sequence_2):
     :param sequence_2: second sequence.
     :return: tuple with the two sequences alignments.
     """
-    aligner = Align.PairwiseAligner(match_score=1.0, mode="global", mismatch_score=-2.0, gap_score=-2.5,
+    aligner = Align.PairwiseAligner(match_score=1.0, mode="global", mismatch_score=-2.0, gap_score=-3.5,
                                     query_left_extend_gap_score=0, query_internal_extend_gap_score=0,
                                     query_right_extend_gap_score=0, target_left_extend_gap_score=0,
                                     target_internal_extend_gap_score=0, target_right_extend_gap_score=0)
