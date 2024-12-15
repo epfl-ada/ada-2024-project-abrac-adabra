@@ -11,6 +11,7 @@ import py3Dmol
 import plotly.graph_objects as go
 import torch
 from src.scripts.mutants_analysis import *
+from Bio.PDB import PDBParser
 from plotly.subplots import make_subplots
 
 
@@ -241,7 +242,7 @@ def generate_interactive_ic50_plot():
     # Save the interactive plot
     fig.write_html(os.path.join(saving_directory, 'interactive_ic50_plot.html'))
 
-def visualize_mutants(interaction_pairs_path, df_folder, pdb_files_folder):
+def new_visualize_mutants(interaction_pairs_path, df_folder, pdb_files_folder):
     """
     Save mutants 3D structure to display on the website
     :param interaction_pairs_path: path to df containing information about interaction pairs
@@ -249,19 +250,22 @@ def visualize_mutants(interaction_pairs_path, df_folder, pdb_files_folder):
     :param pdb_files_folder: folder containing pdb files for WT proteins
     :return: dict where keys are WT protein names and values are (mutant_number, [mutant_names]) 
     """
-
+    parser = PDBParser(QUIET=True)
     mutants_infos = {}
     interaction_pairs = pd.read_csv(interaction_pairs_path)
     for idx, file_name in enumerate(sorted(os.listdir(df_folder))):
         df = pd.read_csv(os.path.join(df_folder, file_name))
         wt_protein_name = interaction_pairs.iloc[idx]['WT protein']
+        structure = parser.get_structure("protein", os.path.join(pdb_files_folder, f'{wt_protein_name}.pdb'))
+        chain = list(structure.get_chains())[0]  # Assume the first chain
+
         view = nv.show_file(os.path.join(pdb_files_folder, f'{wt_protein_name}.pdb')) # Show WT protein
         curr_num_mutants, curr_mutant_names = mutants_infos[wt_protein_name] if wt_protein_name in mutants_infos.keys() else (0, [])
 
         saving_folder = f"../plots/{wt_protein_name}"
         if not os.path.exists(saving_folder):
             os.makedirs(saving_folder)
-        saving_path = os.path.join(saving_folder, f'{wt_protein_name}_mutant_0.html') # Save WT protein viz
+        saving_path = os.path.join(saving_folder, f'{wt_protein_name}_mutant_0_viz.html') # Save WT protein viz
         nv.write_html(saving_path, [view])
         # Clean infos about mutation positions 
         for c in ['Insertion Positions', 'Deletion Positions', 'Substitution Positions']:
@@ -273,16 +277,40 @@ def visualize_mutants(interaction_pairs_path, df_folder, pdb_files_folder):
                 print("Mutant viz already saved")
             else:
                 curr_num_mutants+=1
-                # Remove all colors before adding color for specific parts of mutants
-                view.clear_representations()  
+                view.clear()
+                view.clear_representations()
+                view = nv.show_file(os.path.join(pdb_files_folder, f'{wt_protein_name}.pdb')) # Show WT protein 
+                view.clear_representations()
                 view.add_cartoon(color="#D3D3D3")
+                
                 # One color per type of mutation
-                view.add_cartoon(row['Insertion Positions'], color="blue")
-                view.add_cartoon(range(1,150), color="blue")
-                view.add_cartoon(row['Deletion Positions'], color="red")   
-                view.add_ball_and_stick(row['Substitution Positions'], color="green")
+                insertions = row['Insertion Positions']
+                deletions = row['Deletion Positions']
+                substitutions = row['Substitution Positions']
 
-                saving_path = os.path.join(saving_folder, f'{wt_protein_name}_mutant_{curr_num_mutants}.html')
+                all = [a for a in range(len(chain)) if a not in deletions]
+                start_range_nums = [all[0]+1]
+                end_range_nums = []
+                for i in range(len(all)-1):
+                    if all[i]+1!=all[i+1]:
+                        end_range_nums.append(all[i]+1)
+                        start_range_nums.append(all[i+1]+1)
+                end_range_nums.append(all[-1]+1)
+                ranges = []
+
+                for i in range(len(start_range_nums)):
+                    curr_range = f'{start_range_nums[i]}-{end_range_nums[i]}'
+                    ranges.append(curr_range)
+                    view.add_cartoon(selection=curr_range, color=row['Colour'])
+                
+                for i in insertions:
+                    view.add_spacefill(selection=f'{i+1}', color="blue", radius=1.5)
+                for s in substitutions:
+                    view.add_spacefill(selection=f'{s+1}', color="green", radius=1.5)
+
+                saving_path = os.path.join(saving_folder, f'{wt_protein_name}_mutant_{curr_num_mutants}_viz.html')
+                with open(saving_path, 'w') as f:
+                    pass  # Do nothing, effectively clearing the file
                 nv.write_html(saving_path, [view]) # Save mutant representation
                 curr_mutant_names.append(row['Mutant Name']) 
         mutants_infos.update({wt_protein_name: (curr_num_mutants, curr_mutant_names)}) # Update summary table 
