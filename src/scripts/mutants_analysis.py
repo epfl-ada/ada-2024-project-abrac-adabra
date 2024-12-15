@@ -337,7 +337,7 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference', title=None, y
     if df is None:
         return None
 
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(10, 6), dpi=300)
     df['Marker'] = df.Type.apply(lambda x: 'o' if x == 'substitution' else 'v' if x == 'insertion' else 'x')
     seen_mutants = set()
     for _, row in df.iterrows():
@@ -387,7 +387,7 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
     right_lim = x_max + buffer
 
     df.drop(df[(df['Type'] == 'gap') | (df['Type'] == 'insertion')].index, inplace=True)
-
+    plt.figure(figsize=(10, 6), dpi = 300) 
     sns.set(style="whitegrid")
 
     g = sns.scatterplot(

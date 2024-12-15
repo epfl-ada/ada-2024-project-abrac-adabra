@@ -317,9 +317,9 @@ def new_visualize_mutants(interaction_pairs_path, df_folder, pdb_files_folder):
 
     return mutants_infos
 
-def bar_plot(interaction_pairs_path, df_folder):
+def bar_plot_df(interaction_pairs_path, df_folder):
     """
-    Create bar plot to visualize difference in binding affinity based on the ligand for a given pair
+    Create bar plot df to visualize difference in binding affinity based on the ligand for a given pair
     :param interaction_pairs_path: path to df containing information about interaction pairs
     :param df_folder: folder containing csv files with infos about binding affinity of mutants
     """
@@ -338,17 +338,8 @@ def bar_plot(interaction_pairs_path, df_folder):
     df_grouped['Mutant Name'] = df_grouped['Mutant Name'].apply(lambda x: x.split(' ')[1])
     final_df = df_grouped[df_grouped['Ligand number'].apply(len) >=2].explode(['Ligand number', 'IC50 Log Ratio'])
     
-    for name, group in final_df.groupby('WT protein'):
-        plt.close()
-        plt.figure(figsize=(10, 6), dpi = 600) 
-        sns.set_style("darkgrid")
-        sns.barplot(x='Mutant Name', y='IC50 Log Ratio', hue='Ligand number', data=group, errorbar=None, palette='CMRmap')
-        plt.title(f'Log Ratio IC50 between WT {name} and mutants')
-        plt.xticks(rotation=40)
-        plt.show()
-        plt.savefig(f'barplot_{name}.png');
+    return final_df
 
-"""
 # Data loading
 print("Started loading data")
 df_mutants = pd.read_csv('../data/mutants.csv')
@@ -357,18 +348,30 @@ df_mutants['Target Names'] = df_mutants['Target Names'].apply(lambda x: ast.lite
 df_mutants['BindingDB Target Chain Sequence'] = df_mutants['BindingDB Target Chain Sequence'].apply(lambda x: ast.literal_eval(x))
 print("Loaded data")
 
-
 # Generate dfs and plots
 interaction_pairs = save_dfs_ligands(df_merged, df_mutants)
 interaction_pairs.to_csv('../data/interaction_pairs.csv')
 print("Saved dfs")
-visualize_ligands(interaction_pairs['Ligand SMILES'])
-print("Saved ligand representations")
+
 generate_interactive_ic50_plot()
 print("Saved interactive IC50 plot")
-# visualize mutants
-mutants_infos = visualize_mutants('../data/interaction_pairs.csv', '../data/prot_viz', '../data/pdb_files')
+
+visualize_ligands(interaction_pairs['Ligand SMILES'])
+print("Saved ligand representations")
+
+mutants_infos = new_visualize_mutants('../data/interaction_pairs.csv', '../data/prot_viz', '../data/pdb_files')
 for k, v in mutants_infos.items():
     pd.DataFrame(v[1]).to_csv(f'../plots/{k}/mutant_names.csv')
+
+final_df = bar_plot_df('../data/interaction_pairs.csv', '../data/prot_viz')
+for name, group in final_df.groupby('WT protein'):
+        plt.close()
+        plt.figure(figsize=(10, 6), dpi = 600) 
+        sns.set_style("darkgrid")
+        sns.barplot(x='Mutant Name', y='IC50 Log Ratio', hue='Ligand number', data=group, errorbar=None, palette='rocket')
+        plt.title(f'Log Ratio IC50 between WT {name} and mutants')
+        plt.xticks(rotation=40)
+        plt.savefig(f'src/plots/barplot_{name}.png', bbox_inches='tight');
+
 print("Saved interactive mutant visualizations")
-"""
+
