@@ -242,39 +242,83 @@ def generate_interactive_ic50_plot():
     fig.write_html(os.path.join(saving_directory, 'interactive_ic50_plot.html'))
 
 def visualize_mutants(interaction_pairs_path, df_folder, pdb_files_folder):
+    """
+    Save mutants 3D structure to display on the website
+    :param interaction_pairs_path: path to df containing information about interaction pairs
+    :param df_folder: folder containing csv files with infos to plot mutants
+    :param pdb_files_folder: folder containing pdb files for WT proteins
+    :return: dict where keys are WT protein names and values are (mutant_number, [mutant_names]) 
+    """
+
     mutants_infos = {}
     interaction_pairs = pd.read_csv(interaction_pairs_path)
     for idx, file_name in enumerate(sorted(os.listdir(df_folder))):
         df = pd.read_csv(os.path.join(df_folder, file_name))
         wt_protein_name = interaction_pairs.iloc[idx]['WT protein']
-        view = nv.show_file(os.path.join(pdb_files_folder, f'{wt_protein_name}.pdb'))
+        view = nv.show_file(os.path.join(pdb_files_folder, f'{wt_protein_name}.pdb')) # Show WT protein
         curr_num_mutants, curr_mutant_names = mutants_infos[wt_protein_name] if wt_protein_name in mutants_infos.keys() else (0, [])
 
         saving_folder = f"../plots/{wt_protein_name}"
         if not os.path.exists(saving_folder):
             os.makedirs(saving_folder)
-        saving_path = os.path.join(saving_folder, f'{wt_protein_name}_mutant_0.html')
+        saving_path = os.path.join(saving_folder, f'{wt_protein_name}_mutant_0.html') # Save WT protein viz
         nv.write_html(saving_path, [view])
+        # Clean infos about mutation positions 
         for c in ['Insertion Positions', 'Deletion Positions', 'Substitution Positions']:
             df[c] = df[c].apply(lambda x: [int(i) for i in x.strip('[]').split(' ') if i != '' ])
+
         for _, row in df.iterrows():
+            # Some mutants appear in multiple files and don't need to be represented multiple times
             if row['Mutant Name'] in curr_mutant_names:
                 print("Mutant viz already saved")
             else:
                 curr_num_mutants+=1
-                view.clear_representations()
+                # Remove all colors before adding color for specific parts of mutants
+                view.clear_representations()  
                 view.add_cartoon(color="#D3D3D3")
+                # One color per type of mutation
                 view.add_cartoon(row['Insertion Positions'], color="blue")
                 view.add_cartoon(range(1,150), color="blue")
                 view.add_cartoon(row['Deletion Positions'], color="red")   
                 view.add_ball_and_stick(row['Substitution Positions'], color="green")
 
                 saving_path = os.path.join(saving_folder, f'{wt_protein_name}_mutant_{curr_num_mutants}.html')
-                nv.write_html(saving_path, [view])
-                curr_mutant_names.append(row['Mutant Name'])
-        mutants_infos.update({wt_protein_name: (curr_num_mutants, curr_mutant_names)})
+                nv.write_html(saving_path, [view]) # Save mutant representation
+                curr_mutant_names.append(row['Mutant Name']) 
+        mutants_infos.update({wt_protein_name: (curr_num_mutants, curr_mutant_names)}) # Update summary table 
 
     return mutants_infos
+
+def bar_plot(interaction_pairs_path, df_folder):
+    """
+    Create bar plot to visualize difference in binding affinity based on the ligand for a given pair
+    :param interaction_pairs_path: path to df containing information about interaction pairs
+    :param df_folder: folder containing csv files with infos about binding affinity of mutants
+    """
+    interaction_pairs = pd.read_csv(interaction_pairs_path)
+    mega_df = []
+    for idx, file_name in enumerate(sorted(os.listdir(df_folder))):
+        df = pd.read_csv(os.path.join(df_folder, file_name))
+        df = df[['Mutant Name', 'IC50 Log Ratio']]
+        df['WT protein'] = interaction_pairs.iloc[idx]['WT protein']
+        df['Ligand SMILES'] = interaction_pairs.iloc[idx]['Ligand SMILES']
+        df['Ligand name'] = interaction_pairs.iloc[idx]['Ligand name']
+        df['Ligand number'] = idx+1
+        mega_df.append(df)
+
+    df_grouped = pd.concat(mega_df, ignore_index=True).groupby(['WT protein', 'Mutant Name'])[['Ligand number', 'IC50 Log Ratio']].agg(list).reset_index()
+    df_grouped['Mutant Name'] = df_grouped['Mutant Name'].apply(lambda x: x.split(' ')[1])
+    final_df = df_grouped[df_grouped['Ligand number'].apply(len) >=2].explode(['Ligand number', 'IC50 Log Ratio'])
+    
+    for name, group in final_df.groupby('WT protein'):
+        plt.close()
+        plt.figure(figsize=(10, 6), dpi = 600) 
+        sns.set_style("darkgrid")
+        sns.barplot(x='Mutant Name', y='IC50 Log Ratio', hue='Ligand number', data=group, errorbar=None, palette='CMRmap')
+        plt.title(f'Log Ratio IC50 between WT {name} and mutants')
+        plt.xticks(rotation=40)
+        plt.show()
+        plt.savefig(f'barplot_{name}.png');
 
 """
 # Data loading
