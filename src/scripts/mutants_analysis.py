@@ -397,7 +397,8 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
         hue="Probability Difference",
         palette="RdBu",
         style="Type",
-        markers={'substitution': 'o'}
+        markers={'substitution': 'o'},
+        alpha=0.5
     )
 
     norm = plt.Normalize(-1, 1)
@@ -405,7 +406,6 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
     cbar = plt.colorbar(sm, ax=g)
     cbar.set_label("Difference in ESM2 Probability", fontsize=10)
 
-    plt.legend().remove()
     plt.xlabel('Amino Acid Position')
     if y_axis is None: 
         plt.ylabel(ic50_column)
@@ -415,6 +415,7 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
         plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=12)
     else:
         plt.title(f'{title} by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+    plt.legend(bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0.)
     plt.xlim(left_lim, right_lim)
     plt.tight_layout()
     plt.show()
