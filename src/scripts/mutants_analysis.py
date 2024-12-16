@@ -343,10 +343,10 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference', title=None, y
     for _, row in df.iterrows():
         mutant = row['Mutant Name'].replace(wt_name, '')
         if mutant not in seen_mutants:
-            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=0.75, label=mutant)
+            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=0.25, label=mutant)
             seen_mutants.add(mutant)
         else:
-            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=0.75)
+            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=0.25)
 
     plt.xlabel('Amino Acid Position')
     if y_axis is None:
@@ -397,15 +397,14 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
         hue="Probability Difference",
         palette="RdBu",
         style="Type",
-        markers={'substitution': 'o'},
-        alpha=0.5
+        markers={'substitution': 'o'}
     )
 
     norm = plt.Normalize(-1, 1)
     sm = plt.cm.ScalarMappable(cmap="RdBu", norm=norm)
     cbar = plt.colorbar(sm, ax=g)
     cbar.set_label("Difference in ESM2 Probability", fontsize=10)
-
+    plt.legend().remove()
     plt.xlabel('Amino Acid Position')
     if y_axis is None: 
         plt.ylabel(ic50_column)
@@ -415,7 +414,6 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
         plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=12)
     else:
         plt.title(f'{title} by Amino Acid Position for mutants of {wt_name}', fontsize=12)
-    plt.legend(bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0.)
     plt.xlim(left_lim, right_lim)
     plt.tight_layout()
     plt.show()
