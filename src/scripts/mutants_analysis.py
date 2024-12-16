@@ -2,7 +2,7 @@ from Bio import Align
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import random
+import matplotlib.lines as mlines
 from src.models.ProteinModel import ProteinModel
 import seaborn as sns
 import re
@@ -97,11 +97,20 @@ def compute_pairwise_alignment(sequence_1, sequence_2):
 
 
 def compute_multiple_alignment(reference_protein, mutants_list, sequences_list):
+    """
+    Compute multiple sequence alignments between proteins in the mutants lists.
+    To do so, the reference proteins is used as the reference.
+    :param reference_protein: name of protein used as reference.
+    :param mutants_list: name of the mutants.
+    :param sequences_list: sequences of the proteins.
+    :return: Multiple Sequence Alignment.
+    """
     # Compute pairwise alignments between reference and other sequences
     differences = compute_reference_mutant_differences(reference_protein, mutants_list, sequences_list)
+    # Check if there are any insertions
     condition = np.all(differences['Insertion Positions'].apply(lambda x: x.size == 0) == False)
 
-    # Initialize
+    # Initialize the alignment using the pairwise alignments
     aligned_sequences = differences[['Mutant Name', 'Alignment Mutant No Insertion']].copy()
     aligned_sequences = aligned_sequences.rename(columns={'Mutant Name': 'Protein Name',
                                                           'Alignment Mutant No Insertion': 'Alignment'})
@@ -109,34 +118,37 @@ def compute_multiple_alignment(reference_protein, mutants_list, sequences_list):
                             'Alignment': [differences['Alignment Reference No Insertion'][0]]})
     aligned_sequences = pd.concat([new_row, aligned_sequences], ignore_index=True)
 
-    if condition:
+    if condition:  # If no insertion is found, then the alignment doesn't need modifications
         return aligned_sequences
 
-    # Create alignment
+    # If insertions are present, then in those positions we need to add gaps to all the sequences except the ones with
+    # the insertion
     positions = len(differences['Alignment Reference No Insertion'][0])
     i, j, c = 0, 0, 0
-    while i < positions:
+    while i < positions:  # For each position
+        # Check if that position has an insertion
         value = [j in row['Insertion Positions'] for index, row in differences.iterrows()]
+        # Check if the insertion is longer than 1
         condition = [j + 1 in row['Insertion Positions'] and value[index] for index, row in differences.iterrows()]
-        if np.any(value):
-            positions += 1
+        if np.any(value):  # If there is an insertion, we add it
+            positions += 1  # The total length of the alignment will increase
             for idx, row in aligned_sequences.iterrows():
-                if idx == 0:
+                if idx == 0:  # The reference doesn't have any insertion, so we always add a gap
                     aligned_sequences.loc[idx, 'Alignment'] = (aligned_sequences.loc[idx, 'Alignment'][:i] + '-' +
                                                                aligned_sequences.loc[idx, 'Alignment'][i:])
-                else:
+                else:  # For the other sequence, we check if they have an insertion in that position or not
                     index = idx - 1
-                    if value[index]:
+                    if value[index]:  # If they have an insertion, we add the corresponding amino acid
                         aligned_sequences.loc[idx, 'Alignment'] = (aligned_sequences.loc[idx, 'Alignment'][:i] +
                                                                      differences.loc[index, 'Alignment Mutant'][j] +
                                                                      aligned_sequences.loc[idx, 'Alignment'][i:])
-                    else:
+                    else:  # Otherwise we add a gap
                         aligned_sequences.loc[idx, 'Alignment'] = (aligned_sequences.loc[idx, 'Alignment'][:i] + '-' +
                                                                      aligned_sequences.loc[idx, 'Alignment'][i:])
-            if not np.any(condition):
+            if not np.any(condition):  # If the insertion is finished (no longer), then we stop
                 i += c + 1
                 c = 0
-            else:
+            else:  # Otherwise we only increase c, and we continue adding in consecutives positions
                 c += 1
         i += 1
         j += 1
@@ -235,13 +247,24 @@ def define_mutation(row):
 def compute_probability_variation(row, model):
     """
     Compute the difference between probabilities given from ESM2.
+    Given a specific mutation, if the mutation is an insertion or deletion, it returns 0, since ESM2 was not trained
+    with the gaps. If the mutation is a substitution, then it masks the position at which the substitution occurred,
+    and it computes the difference between the probability of the "new" amino acid and the probability of the "previous"
+    amino acid.
     :param row: row of the dataframe with the mutation or gap.
     :param model: ESM2.
+    :return: 0 if the mutation type is a deletion or insertion, p(new amino acid) - p(previous amino acid) otherwise.
     """
     if row['Type'] == 'substitution':
-        probabilities = pd.DataFrame(model.get_probabilities_unmasked(row['Alignment Reference'], row['Positions']))
-        return probabilities[probabilities['token_str'] == row['Mutation'][5]]['score'].values[0] - probabilities[probabilities['token_str'] == row['Mutation'][0]]['score'].values[0]
-    else:
+        # Compute the probability of all amino acids in the position of the substitution
+        probabilities = pd.DataFrame(model.get_probabilities_unmasked(row['Alignment Reference No Insertion'], row['Positions']))
+        # Get the probability of having the "new" amino acid in the masked position
+        probability_new = probabilities[probabilities['token_str'] == row['Mutation'][5]]['score'].values[0]
+        # Get the probability of having the "previous" amino acid in the masked position
+        probability_old = probabilities[probabilities['token_str'] == row['Mutation'][0]]['score'].values[0]
+        # Computes the difference between the probabilities
+        return probability_new - probability_old
+    else:  # Since ESM2 was not trained on gaps, then for insertion and deletion it just returns 0
         return 0
 
 
@@ -317,7 +340,7 @@ def compute_variation_ic50(row, df_merged):
     grouped_df = differences_explode.groupby('Group', as_index=False).agg(agg_funcs)
 
     grouped_df['Mutation'] = grouped_df.apply(
-        lambda row: row['Mutation'][0] if row['Type'] != 'insertion' else row['Mutation'],
+        lambda r: r['Mutation'][0] if r['Type'] != 'insertion' else r['Mutation'],
         axis=1
     )
 
@@ -337,16 +360,23 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference', title=None, y
     if df is None:
         return None
 
+    opacity = 0.6
     plt.figure(figsize=(10, 6), dpi=300)
     df['Marker'] = df.Type.apply(lambda x: 'o' if x == 'substitution' else 'v' if x == 'insertion' else 'x')
     seen_mutants = set()
+    legend_handles = []
     for _, row in df.iterrows():
         mutant = row['Mutant Name'].replace(wt_name, '')
         if mutant not in seen_mutants:
-            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=0.25, label=mutant)
+            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=opacity,
+                        label=mutant)
             seen_mutants.add(mutant)
+            legend_handles.append(
+                mlines.Line2D([], [], marker='o', color='w', markerfacecolor=row['Colour'], markersize=10,
+                              label=mutant, alpha=opacity)
+            )
         else:
-            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=0.25)
+            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=opacity)
 
     plt.xlabel('Amino Acid Position')
     if y_axis is None:
@@ -357,8 +387,8 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference', title=None, y
         plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=12)
     else:
         plt.title(f'{title} by Amino Acid Position for mutants of {wt_name}', fontsize=12)
-    plt.legend(bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0.)
     plt.grid(True)
+    plt.legend(handles=legend_handles, bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0.)
     plt.tight_layout()
     plt.show()
 
@@ -397,7 +427,8 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
         hue="Probability Difference",
         palette="RdBu",
         style="Type",
-        markers={'substitution': 'o'}
+        markers={'substitution': 'o'},
+        s=100  # To increase the point
     )
 
     norm = plt.Normalize(-1, 1)
