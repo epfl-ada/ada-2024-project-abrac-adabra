@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
+import matplotlib as mpl
 from src.models.ProteinModel import ProteinModel
 import seaborn as sns
 import re
@@ -304,7 +305,7 @@ def compute_variation_ic50(row, df_merged):
         [(pos, 'insertion') for pos in row['Insertion Positions']], axis=1
     )
 
-    differences_explode = differences.explode('Position').dropna()
+    differences_explode = differences.explode('Position').dropna().reset_index(drop=True)
     differences_explode[['Positions', 'Type']] = pd.DataFrame(differences_explode['Position'].tolist(), index=differences_explode.index)
     differences_explode.drop(columns=['Position', 'Insertion Positions', 'Substitution Positions', 'Deletion Positions'], inplace=True)
     differences.drop(columns=['Position'], inplace=True)
@@ -353,6 +354,8 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference', title=None, y
     :param row: row with information on the reference and mutants.
     :param df_merged: DataFrame containing the columns Positions, Colours and Type.
     :param ic50_column: column to use as the y-axis for the plot.
+    :param title: title of the plot
+    :param y_axis: y-axis for the plot.
     """
     wt_name = row['WT Target Name']
     df, _, _ = compute_variation_ic50(row, df_merged)
@@ -368,8 +371,8 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference', title=None, y
     for _, row in df.iterrows():
         mutant = row['Mutant Name'].replace(wt_name, '')
         if mutant not in seen_mutants:
-            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=opacity,
-                        label=mutant)
+            plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'],
+                        alpha=opacity, label=mutant)
             seen_mutants.add(mutant)
             legend_handles.append(
                 mlines.Line2D([], [], marker='o', color='w', markerfacecolor=row['Colour'], markersize=10,
@@ -417,21 +420,23 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
     right_lim = x_max + buffer
 
     df.drop(df[(df['Type'] == 'gap') | (df['Type'] == 'insertion')].index, inplace=True)
-    plt.figure(figsize=(10, 6), dpi = 300) 
-    sns.set(style="whitegrid")
+    plt.figure(figsize=(10, 6), dpi=300)
 
+    norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+
+    sns.set_theme(style="whitegrid")
     g = sns.scatterplot(
         data=df,
         x="Positions",
-        y=ic50_column,
+        y="IC50 Log Ratio",
         hue="Probability Difference",
         palette="RdBu",
         style="Type",
         markers={'substitution': 'o'},
-        s=100  # To increase the point
+        s=100,
+        hue_norm=norm,
     )
 
-    norm = plt.Normalize(-1, 1)
     sm = plt.cm.ScalarMappable(cmap="RdBu", norm=norm)
     cbar = plt.colorbar(sm, ax=g)
     cbar.set_label("Difference in ESM2 Probability", fontsize=10)
@@ -448,3 +453,94 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
     plt.xlim(left_lim, right_lim)
     plt.tight_layout()
     plt.show()
+
+
+def plot_ic50_both_graphs(row, df_merged, ic50_column='IC50 Difference', title=None, y_axis=None):
+    """
+    Plot both the graphs for ic50
+    :param row: row with information on the reference and mutants.
+    :param df_merged: DataFrame containing the columns Positions, Colours and Type.
+    :param ic50_column: column to use as the y-axis for the plot.
+    :param title: title of the plot
+    :param y_axis: y-axis for the plot.
+    """
+    fig, axes = plt.subplots(1, 2, figsize=(12, 6), dpi=300)
+
+    wt_name = row['WT Target Name']
+    df, _, _ = compute_variation_ic50(row, df_merged)
+
+    # Do not plot if the case was dropped
+    if df is None:
+        return None
+
+    # First plot
+    opacity = 0.6
+    df['Marker'] = df.Type.apply(lambda x: 'o' if x == 'substitution' else 'v' if x == 'insertion' else 'x')
+    seen_mutants = set()
+    legend_handles = []
+    for _, row in df.iterrows():
+        mutant = row['Mutant Name'].replace(wt_name, '')
+        if mutant not in seen_mutants:
+            axes[0].scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'],
+                            alpha=opacity, label=mutant)
+            seen_mutants.add(mutant)
+            legend_handles.append(
+                mlines.Line2D([], [], marker='o', color='w', markerfacecolor=row['Colour'], markersize=10,
+                              label=mutant, alpha=opacity)
+            )
+        else:
+            axes[0].scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'],
+                        alpha=opacity)
+
+    axes[0].set_xlabel('Amino Acid Position')
+    if y_axis is None:
+        axes[0].set_ylabel(ic50_column)
+    else:
+        axes[0].set_ylabel(y_axis)
+    axes[0].grid(True)
+    axes[0].legend(handles=legend_handles, bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0.)
+
+    # Second plot
+    x_min = df["Positions"].min()
+    x_max = df["Positions"].max()
+    buffer = (x_max - x_min) * 0.05
+    left_lim = x_min - buffer
+    right_lim = x_max + buffer
+
+    df.drop(df[(df['Type'] == 'gap') | (df['Type'] == 'insertion')].index, inplace=True)
+
+    norm = mpl.colors.Normalize(vmin=-1, vmax=1)
+    sns.set_theme(style="whitegrid")
+    g = sns.scatterplot(
+        data=df,
+        x="Positions",
+        y="IC50 Log Ratio",
+        hue="Probability Difference",
+        palette="RdBu",
+        style="Type",
+        markers={'substitution': 'o'},
+        s=100,
+        hue_norm=norm,
+    )
+
+    sm = plt.cm.ScalarMappable(cmap="RdBu", norm=norm)
+    cbar = plt.colorbar(sm, ax=g)
+    cbar.set_label("Difference in ESM2 Probability", fontsize=10)
+    axes[1].legend().remove()
+    axes[1].set_xlabel('Amino Acid Position')
+    axes[1].set_xlim(left_lim, right_lim)
+    axes[1].grid(True)
+    axes[1].set_ylabel('')
+
+    if title is None:
+        fig.suptitle(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+    else:
+        fig.suptitle(f'{title} by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+
+    # Adjust layout to prevent overlap
+    plt.tight_layout()
+
+    # Show the combined figure
+    plt.show()
+
+

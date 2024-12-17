@@ -391,6 +391,3 @@ class Test(unittest.TestCase):
             self.assertEqual(row['IC50 Difference'], 0)
             self.assertEqual(row['IC50 Ratio'], 1)
             self.assertEqual(row['IC50 Percentage'], 0)
-
-
-
