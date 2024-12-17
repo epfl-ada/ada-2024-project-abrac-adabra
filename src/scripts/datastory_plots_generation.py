@@ -17,15 +17,15 @@ from src.scripts.datastory_plots import *
 
 # Data loading
 print("Started loading data")
-df_mutants = pd.read_csv('../data/mutants.csv')
-df_merged = pd.read_csv('../data/merged_df.csv')
+df_mutants = pd.read_csv('../../data/mutants.csv')
+df_merged = pd.read_csv('../../data/merged_df.csv')
 df_mutants['Target Names'] = df_mutants['Target Names'].apply(lambda x: ast.literal_eval(x))
 df_mutants['BindingDB Target Chain Sequence'] = df_mutants['BindingDB Target Chain Sequence'].apply(lambda x: ast.literal_eval(x))
 print("Loaded data")
 
 # Generate dfs and plots
 interaction_pairs = save_dfs_ligands(df_merged, df_mutants)
-interaction_pairs.to_csv('../data/interaction_pairs.csv')
+interaction_pairs.to_csv('../../data/interaction_pairs.csv')
 print("Saved dfs")
 
 generate_interactive_ic50_plot()
@@ -34,11 +34,11 @@ print("Saved interactive IC50 plot")
 visualize_ligands(interaction_pairs['Ligand SMILES'])
 print("Saved ligand representations")
 
-mutants_infos = new_visualize_mutants('../data/interaction_pairs.csv', '../data/prot_viz', '../data/pdb_files')
+mutants_infos = visualize_mutants('../../data/interaction_pairs.csv', '../../data/prot_viz', '../../data/pdb_files')
 for k, v in mutants_infos.items():
     pd.DataFrame(v[1]).to_csv(f'../plots/{k}/mutant_names.csv')
 
-final_df = bar_plot_df('../data/interaction_pairs.csv', '../data/prot_viz')
+final_df = bar_plot_df('../../data/interaction_pairs.csv', '../../data/prot_viz')
 for name, group in final_df.groupby('WT protein'):
         plt.close()
         plt.figure(figsize=(10, 6), dpi = 600) 

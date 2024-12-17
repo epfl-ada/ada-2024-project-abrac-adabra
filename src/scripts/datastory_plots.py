@@ -37,10 +37,10 @@ def save_dfs_ligands(df_merged, df_mutants):
     :param df_mutants: dataframe containing infos about mutants after data processing
     :return: interaction pair names of the structure [Ligand SMILES, Uniprot Name of WT]
     """
-    saving_folder_dfs = "../data/pair_dfs"
+    saving_folder_dfs = "../../data/pair_dfs"
     if not os.path.exists(saving_folder_dfs):
             os.makedirs(saving_folder_dfs)
-    saving_folder_dfs_prot_viz = "../data/prot_viz"
+    saving_folder_dfs_prot_viz = "../../data/prot_viz"
     if not os.path.exists(saving_folder_dfs_prot_viz):
             os.makedirs(saving_folder_dfs_prot_viz)
     pair_numbers = 0
@@ -127,8 +127,8 @@ def generate_interactive_ic50_plot():
     Generate IC50 interactive plot that will be displayed on the website
     """
 
-    file_directory = '../data/pair_dfs'
-    saving_directory = '../plots'
+    file_directory = '../../data/pair_dfs'
+    saving_directory = '../../plots'
     if not os.path.exists(saving_directory):
             os.makedirs(saving_directory)
 
@@ -241,7 +241,7 @@ def generate_interactive_ic50_plot():
     # Save the interactive plot
     fig.write_html(os.path.join(saving_directory, 'interactive_ic50_plot.html'))
 
-def new_visualize_mutants(interaction_pairs_path, df_folder, pdb_files_folder):
+def visualize_mutants(interaction_pairs_path, df_folder, pdb_files_folder):
     """
     Save mutants 3D structure to display on the website
     :param interaction_pairs_path: path to df containing information about interaction pairs
@@ -261,7 +261,7 @@ def new_visualize_mutants(interaction_pairs_path, df_folder, pdb_files_folder):
         view = nv.show_file(os.path.join(pdb_files_folder, f'{wt_protein_name}.pdb')) # Show WT protein
         curr_num_mutants, curr_mutant_names = mutants_infos[wt_protein_name] if wt_protein_name in mutants_infos.keys() else (0, [])
 
-        saving_folder = f"../plots/{wt_protein_name}"
+        saving_folder = f"../../plots/{wt_protein_name}"
         if not os.path.exists(saving_folder):
             os.makedirs(saving_folder)
         saving_path = os.path.join(saving_folder, f'{wt_protein_name}_mutant_0_viz.html') # Save WT protein viz
