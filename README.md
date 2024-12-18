@@ -2,12 +2,13 @@
 ### A project by Abigaïl Ingster, Alexis Cogne, Riccardo Carpineto, Tancredi Cogne, and Viola Renne
 
 ## Abstract
-
+TODO (also introduce BindingDB,...)
 ## Git Structure
 ### Results
 All results can be found in the notebooks P2 results and P3 results.
 - P2 results contains data exploration, processing, and investigations of our first ideas
-- P3 results contains the final results of our study which were elaborated on the basis on P2 results
+- mutant_analysis contains the final results of our study regarding mutants which were elaborated on the basis on P2 results
+- TODO: abi and ric
 
 ### Data
 Not all data files can be loaded on Git due to their size but the folder structure is still shown to easily reproduce the results. The folder Data contains subfolders and files:
@@ -19,14 +20,17 @@ Not all data files can be loaded on Git due to their size but the folder structu
 - interaction_pairs.csv: summarizes each selected interaction pair (that has at least 10 mutants). For each pair, the ligand name, the ligand SMILES, and the WT protein name are given. 
 ### Plots
 All the plots that will be put on the website (either as html files or images) can be found in the folder Plots which contains subfolders and files:
-- EGFR_HUMAN: html viualizations of the 3D structure of the WT EGFR_HUMAN and its mutants. This folder also contains mutant_names.csv which summarizes the name of the mutant associated to a given html file name in the current folder
-- KAPCA_BOVIN: html viualizations of the 3D structure of the WT KAPCA_BOVIN and its mutants. This folder also contains mutant_names.csv which summarizes the name of the mutant associated to a given html file name in the current folder
+- EGFR_HUMAN: html visualizations of the 3D structure of the WT EGFR_HUMAN and its mutants. This folder also contains mutant_names.csv which summarizes the name of the mutant associated to a given html file name in the current folder
+- KAPCA_BOVIN: html visualizations of the 3D structure of the WT KAPCA_BOVIN and its mutants. This folder also contains mutant_names.csv which summarizes the name of the mutant associated to a given html file name in the current folder
+- ligands_3D: html visualizations of the 3D structure of the 5 ligands.
 - barplot_EGFR_HUMAN.png
 - barplot_KAPCA_BOVIN.png
 - interactive_ic50_plot.html
 ### Scripts
-All scripts to process the data, generate visualization and results can be found in the src/scripts folder.
-TODO
+All scripts to process the data, generate visualization and results can be found in the src/scripts folder which contains:
+- run website_plots_script.py to generate all visualizations for the website
+- website_plots.py: contains all the methods needed to generate visualizations for the website
+- mutant_analysis.py: contains all the methods needed for the mutant analysis 
 ## Usage
 ### Data Processing
 To process the data, run the file src/scripts/data_processing.py:
@@ -34,7 +38,3 @@ To process the data, run the file src/scripts/data_processing.py:
 - it generates two files both located in the folder data/processed_data:
     - merged.csv: cleaned and processed data
     - mutants.csv: filtered merged.csv to retain valuable infos about mutants
-
-### Generate Visualizations for the Website
-To generate the visualization for the website, run the file TODO:
-TODO

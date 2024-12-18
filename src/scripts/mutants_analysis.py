@@ -7,6 +7,7 @@ import matplotlib as mpl
 from src.models.ProteinModel import ProteinModel
 import seaborn as sns
 import re
+import os
 
 
 amino_acid_dict = {
@@ -381,15 +382,15 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference', title=None, y
         else:
             plt.scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'], alpha=opacity)
 
-    plt.xlabel('Amino Acid Position')
+    plt.xlabel('Amino acid position')
     if y_axis is None:
         plt.ylabel(ic50_column)
     else:
         plt.ylabel(y_axis)
     if title is None:
-        plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+        plt.title(f'Variation in IC50 Values by amino acid position for mutants of {wt_name}', fontsize=12)
     else:
-        plt.title(f'{title} by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+        plt.title(f'{title} by amino acid position for mutants of {wt_name}', fontsize=12)
     plt.grid(True)
     plt.legend(handles=legend_handles, bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0.)
     plt.tight_layout()
@@ -441,15 +442,15 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
     cbar = plt.colorbar(sm, ax=g)
     cbar.set_label("Difference in ESM2 Probability", fontsize=10)
     plt.legend().remove()
-    plt.xlabel('Amino Acid Position')
+    plt.xlabel('Amino acid position')
     if y_axis is None: 
         plt.ylabel(ic50_column)
     else:
         plt.ylabel(y_axis)
     if title is None:
-        plt.title(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+        plt.title(f'Variation in IC50 Values by amino acid position for mutants of {wt_name}', fontsize=12)
     else:
-        plt.title(f'{title} by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+        plt.title(f'{title} by amino acid position for mutants of {wt_name}', fontsize=12)
     plt.xlim(left_lim, right_lim)
     plt.tight_layout()
     plt.show()
@@ -492,7 +493,7 @@ def plot_ic50_both_graphs(row, df_merged, ic50_column='IC50 Difference', title=N
             axes[0].scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'],
                         alpha=opacity)
 
-    axes[0].set_xlabel('Amino Acid Position')
+    axes[0].set_xlabel('amino acid position')
     if y_axis is None:
         axes[0].set_ylabel(ic50_column)
     else:
@@ -527,15 +528,15 @@ def plot_ic50_both_graphs(row, df_merged, ic50_column='IC50 Difference', title=N
     cbar = plt.colorbar(sm, ax=g)
     cbar.set_label("Difference in ESM2 Probability", fontsize=10)
     axes[1].legend().remove()
-    axes[1].set_xlabel('Amino Acid Position')
+    axes[1].set_xlabel('amino acid position')
     axes[1].set_xlim(left_lim, right_lim)
     axes[1].grid(True)
     axes[1].set_ylabel('')
 
     if title is None:
-        fig.suptitle(f'Variation in IC50 Values by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+        fig.suptitle(f'Variation in IC50 Values by amino acid position for mutants of {wt_name}', fontsize=12)
     else:
-        fig.suptitle(f'{title} by Amino Acid Position for mutants of {wt_name}', fontsize=12)
+        fig.suptitle(f'{title} by amino acid position for mutants of {wt_name}', fontsize=12)
 
     # Adjust layout to prevent overlap
     plt.tight_layout()
@@ -543,4 +544,25 @@ def plot_ic50_both_graphs(row, df_merged, ic50_column='IC50 Difference', title=N
     # Show the combined figure
     plt.show()
 
+def bar_plot_df(interaction_pairs_path, df_folder):
+    """
+    Create bar plot df to visualize difference in binding affinity based on the ligand for a given pair
+    :param interaction_pairs_path: path to df containing information about interaction pairs
+    :param df_folder: folder containing csv files with infos about binding affinity of mutants
+    """
+    interaction_pairs = pd.read_csv(interaction_pairs_path)
+    mega_df = []
+    for idx, file_name in enumerate(sorted(os.listdir(df_folder))):
+        df = pd.read_csv(os.path.join(df_folder, file_name))
+        df = df[['Mutant Name', 'IC50 Log Ratio']]
+        df['WT protein'] = interaction_pairs.iloc[idx]['WT protein']
+        df['Ligand SMILES'] = interaction_pairs.iloc[idx]['Ligand SMILES']
+        df['Ligand name'] = interaction_pairs.iloc[idx]['Ligand name']
+        df['Ligand number'] = idx+1
+        mega_df.append(df)
 
+    df_grouped = pd.concat(mega_df, ignore_index=True).groupby(['WT protein', 'Mutant Name'])[['Ligand number', 'IC50 Log Ratio']].agg(list).reset_index()
+    df_grouped['Mutant Name'] = df_grouped['Mutant Name'].apply(lambda x: x.split(' ')[1])
+    final_df = df_grouped[df_grouped['Ligand number'].apply(len) >=2].explode(['Ligand number', 'IC50 Log Ratio'])
+    
+    return final_df
