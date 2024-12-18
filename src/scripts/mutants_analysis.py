@@ -528,7 +528,7 @@ def plot_ic50_both_graphs(row, df_merged, ic50_column='IC50 Difference', title=N
     cbar = plt.colorbar(sm, ax=g)
     cbar.set_label("Difference in ESM2 Probability", fontsize=10)
     axes[1].legend().remove()
-    axes[1].set_xlabel('amino acid position')
+    axes[1].set_xlabel('Amino acid position')
     axes[1].set_xlim(left_lim, right_lim)
     axes[1].grid(True)
     axes[1].set_ylabel('')
