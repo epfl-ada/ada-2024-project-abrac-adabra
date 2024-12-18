@@ -544,6 +544,7 @@ def plot_ic50_both_graphs(row, df_merged, ic50_column='IC50 Difference', title=N
     # Show the combined figure
     plt.show()
 
+
 def bar_plot_df(interaction_pairs_path, df_folder):
     """
     Create bar plot df to visualize difference in binding affinity based on the ligand for a given pair
