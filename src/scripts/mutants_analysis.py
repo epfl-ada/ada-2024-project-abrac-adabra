@@ -493,7 +493,7 @@ def plot_ic50_both_graphs(row, df_merged, ic50_column='IC50 Difference', title=N
             axes[0].scatter(row['Positions'], row[ic50_column], marker=row.Marker, s=100, color=row['Colour'],
                         alpha=opacity)
 
-    axes[0].set_xlabel('amino acid position')
+    axes[0].set_xlabel('Amino acid position')
     if y_axis is None:
         axes[0].set_ylabel(ic50_column)
     else:
