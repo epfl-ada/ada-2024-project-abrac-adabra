@@ -9,7 +9,7 @@ class Test(unittest.TestCase):
         """
         Testing the difference between "['Tyrosine-protein kinase BTK', 'Tyrosine-protein kinase BTK [C481S]']"
         """
-        df = pd.read_csv('../data/mutants.csv')
+        df = pd.read_csv('../data/processed_data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
@@ -27,7 +27,7 @@ class Test(unittest.TestCase):
         """
         Testing the difference between "['Beta-secretase 1', 'Beta-secretase 1 [1-460]']"
         """
-        df = pd.read_csv('../data/mutants.csv')
+        df = pd.read_csv('../data/processed_data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
@@ -45,7 +45,7 @@ class Test(unittest.TestCase):
         """
         Testing the difference between "['Coagulation factor XIII A chain', 'Coagulation factor XIII A chain [Q652E]']"
         """
-        df = pd.read_csv('../data/mutants.csv')
+        df = pd.read_csv('../data/processed_data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
@@ -65,7 +65,7 @@ class Test(unittest.TestCase):
         'Proto-oncogene tyrosine-protein kinase ROS [D2033N]', 'Proto-oncogene tyrosine-protein kinase ROS [G2032R]',
         'Proto-oncogene tyrosine-protein kinase ROS [L2026M]']"
         """
-        df = pd.read_csv('../data/mutants.csv')
+        df = pd.read_csv('../data/processed_data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
@@ -103,7 +103,7 @@ class Test(unittest.TestCase):
         'Proto-oncogene tyrosine-protein kinase receptor Ret [G810R]',
         'Proto-oncogene tyrosine-protein kinase receptor Ret [V804M]']"
         """
-        df = pd.read_csv('../data/mutants.csv')
+        df = pd.read_csv('../data/processed_data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
@@ -153,7 +153,7 @@ class Test(unittest.TestCase):
         """
         Testing the difference between "['RAC-alpha serine/threonine-protein kinase', 'RAC-alpha serine/threonine-protein kinase [139-480,S378A,S381A,T450D,S473D]']"
         """
-        df = pd.read_csv('../data/mutants.csv')
+        df = pd.read_csv('../data/processed_data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
@@ -183,12 +183,12 @@ class Test(unittest.TestCase):
         """
         Testing the difference between "['Tyrosine-protein kinase BTK', 'Tyrosine-protein kinase BTK [C481S]']"
         """
-        df = pd.read_csv('../data/mutants.csv')
+        df = pd.read_csv('../data/processed_data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
         row = df.iloc[46]
-        df_merged = pd.read_csv('../data/merged_df.csv')
+        df_merged = pd.read_csv('../data/processed_data/merged.csv')
 
         differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
 
@@ -222,12 +222,12 @@ class Test(unittest.TestCase):
         """
         Testing the difference between "['Beta-secretase 1', 'Beta-secretase 1 [1-460]']"
         """
-        df = pd.read_csv('../data/mutants.csv')
+        df = pd.read_csv('../data/processed_data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
         row = df.iloc[145]
-        df_merged = pd.read_csv('../data/merged_df.csv')
+        df_merged = pd.read_csv('../data/processed_data/merged.csv')
 
         differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
 
@@ -256,12 +256,12 @@ class Test(unittest.TestCase):
         """
         Testing the difference between "['Coagulation factor XIII A chain', 'Coagulation factor XIII A chain [Q652E]']"
         """
-        df = pd.read_csv('../data/mutants.csv')
+        df = pd.read_csv('../data/processed_data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
         row = df.iloc[161]
-        df_merged = pd.read_csv('../data/merged_df.csv')
+        df_merged = pd.read_csv('../data/processed_data/merged.csv')
 
         differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
 
@@ -291,12 +291,12 @@ class Test(unittest.TestCase):
         'Proto-oncogene tyrosine-protein kinase ROS [D2033N]', 'Proto-oncogene tyrosine-protein kinase ROS [G2032R]',
         'Proto-oncogene tyrosine-protein kinase ROS [L2026M]']"
         """
-        df = pd.read_csv('../data/mutants.csv')
+        df = pd.read_csv('../data/processed_data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
         row = df.iloc[189]
-        df_merged = pd.read_csv('../data/merged_df.csv')
+        df_merged = pd.read_csv('../data/processed_data/merged.csv')
 
         differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
 
@@ -352,12 +352,12 @@ class Test(unittest.TestCase):
         """
         Testing the difference between "['RAC-alpha serine/threonine-protein kinase', 'RAC-alpha serine/threonine-protein kinase [139-480,S378A,S381A,T450D,S473D]']"
         """
-        df = pd.read_csv('../data/mutants.csv')
+        df = pd.read_csv('../data/processed_data/mutants.csv')
         df['Target Names'] = df['Target Names'].apply(lambda x: ast.literal_eval(x))
         df['BindingDB Target Chain Sequence'] = df['BindingDB Target Chain Sequence'].apply(
             lambda x: ast.literal_eval(x))
         row = df.iloc[0]
-        df_merged = pd.read_csv('../data/merged_df.csv')
+        df_merged = pd.read_csv('../data/processed_data/merged.csv')
 
         differences_explode, grouped_df, _ = compute_variation_ic50(row, df_merged)
 

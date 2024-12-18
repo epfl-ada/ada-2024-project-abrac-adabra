@@ -18,8 +18,8 @@ from src.scripts.mutants_analysis import bar_plot_df
 
 # Data loading
 print("Started loading data")
-df_mutants = pd.read_csv('../../data/mutants.csv')
-df_merged = pd.read_csv('../../data/merged_df.csv')
+df_mutants = pd.read_csv('../../data/processed_data/mutants.csv')
+df_merged = pd.read_csv('../../data/processed_data/merged.csv')
 df_mutants['Target Names'] = df_mutants['Target Names'].apply(lambda x: ast.literal_eval(x))
 df_mutants['BindingDB Target Chain Sequence'] = df_mutants['BindingDB Target Chain Sequence'].apply(lambda x: ast.literal_eval(x))
 print("Loaded data")
