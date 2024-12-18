@@ -1,0 +1,6 @@
+,Ligand SMILES,Ligand name,WT protein
+0,CN(C)C\C=C\C(=O)N1CCCC[C@H](C1)n1c(NC(=O)c2ccnc(C)c2)nc2cccc(Cl)c12,N-[7-chloro-1-[(3R)-1-[(E)-4-(dimethylamino)but-2-enoyl]azepan-3-yl]benzimidazol-2-yl]-2-methylpyridine-4-carboxamide,EGFR_HUMAN
+1,CN(C)C\C=C\C(=O)Nc1cc2c(Nc3ccc(F)c(Cl)c3)ncnc2cc1O[C@H]1CCOC1,(E)-N-[4-(3-chloro-4-fluoroanilino)-7-[(3S)-oxolan-3-yl]oxyquinazolin-6-yl]-4-(dimethylamino)but-2-enamide,EGFR_HUMAN
+2,COc1cc2ncnc(Nc3ccc(F)c(Cl)c3)c2cc1OCCCN1CCOCC1,N-(3-chloro-4-fluorophenyl)-7-methoxy-6-(3-morpholin-4-ylpropoxy)quinazolin-4-amine,EGFR_HUMAN
+3,C[C@@H](N)[C@H]1CC[C@@H](CC1)C(=O)Nc1ccncc1,4-[(1R)-1-aminoethyl]-N-pyridin-4-ylcyclohexane-1-carboxamide,KAPCA_BOVIN
+4,C[C@H]1CNCCCN1S(=O)(=O)c1cccc2cncc(C)c12,"4-methyl-5-[[(2S)-2-methyl-1,4-diazepan-1-yl]sulfonyl]isoquinoline",KAPCA_BOVIN
