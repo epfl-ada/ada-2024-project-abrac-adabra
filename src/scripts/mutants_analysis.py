@@ -51,7 +51,6 @@ distinct_colors = [
     "#2d00f7",  # Blue
 ]
 
-
 def convert_aa_names(substitution):
     """
     Converting the amino acids in the string into the amino acid names.
@@ -66,7 +65,6 @@ def convert_aa_names(substitution):
             return amino_acid_dict[substitution]
     return substitution
 
-
 def find_insertion(name):
     """
     Finds the insertion amino acid in the name.
@@ -78,7 +76,6 @@ def find_insertion(name):
 
     if match:
         return int(match.group(1)), match.group(2)
-
 
 def compute_pairwise_alignment(sequence_1, sequence_2):
     """
@@ -96,7 +93,6 @@ def compute_pairwise_alignment(sequence_1, sequence_2):
     # Get the best alignment
     align_array = np.array(alignments[0])
     return align_array[0], align_array[1]
-
 
 def compute_multiple_alignment(reference_protein, mutants_list, sequences_list):
     """
@@ -156,7 +152,6 @@ def compute_multiple_alignment(reference_protein, mutants_list, sequences_list):
         j += 1
 
     return aligned_sequences
-
 
 def compute_reference_mutant_differences(reference_protein, mutants_list, sequences_list, check=True):
     """
@@ -218,7 +213,6 @@ def compute_reference_mutant_differences(reference_protein, mutants_list, sequen
     results_clean = results[~condition]
     return results_clean
 
-
 def find_ic50(df_merged, proteins, ligand):
     """
     Find IC50 values associated with the given protein list and ligands.
@@ -229,7 +223,6 @@ def find_ic50(df_merged, proteins, ligand):
     """
     return df_merged[(df_merged['Ligand SMILES'] == ligand) &
                      (df_merged['Target Name'].isin(proteins))].set_index('Target Name')['IC50 (nM)']
-
 
 def define_mutation(row):
     """
@@ -244,7 +237,6 @@ def define_mutation(row):
         return f"{row['Alignment Mutant'][row['Positions']]}"
     else:
         return f"{row['Alignment Reference No Insertion'][row['Positions']]} -> {row['Alignment Mutant No Insertion'][row['Positions']]}"
-
 
 def compute_probability_variation(row, model):
     """
@@ -268,7 +260,6 @@ def compute_probability_variation(row, model):
         return probability_new - probability_old
     else:  # Since ESM2 was not trained on gaps, then for insertion and deletion it just returns 0
         return 0
-
 
 def compute_variation_ic50(row, df_merged):
     """
@@ -348,7 +339,6 @@ def compute_variation_ic50(row, df_merged):
 
     return differences_explode, grouped_df, differences
 
-
 def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference', title=None, y_axis=None):
     """
     Plot graph where the x-axis represents the amino acid sequence, and the y-axis represent the difference IC50 value
@@ -395,7 +385,6 @@ def plot_ic50_graph(row, df_merged, ic50_column='IC50 Difference', title=None, y
     plt.legend(handles=legend_handles, bbox_to_anchor=(1.05, 0.5), loc='center left', borderaxespad=0.)
     plt.tight_layout()
     plt.show()
-
 
 def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Difference', title=None, y_axis=None):
     """
@@ -454,7 +443,6 @@ def plot_ic50_graph_with_probabilities(row, df_merged, ic50_column='IC50 Differe
     plt.xlim(left_lim, right_lim)
     plt.tight_layout()
     plt.show()
-
 
 def plot_ic50_both_graphs(row, df_merged, ic50_column='IC50 Difference', title=None, y_axis=None):
     """
@@ -543,7 +531,6 @@ def plot_ic50_both_graphs(row, df_merged, ic50_column='IC50 Difference', title=N
 
     # Show the combined figure
     plt.show()
-
 
 def bar_plot_df(interaction_pairs_path, df_folder):
     """

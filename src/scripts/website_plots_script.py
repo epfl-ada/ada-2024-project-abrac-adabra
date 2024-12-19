@@ -1,18 +1,9 @@
 import ast
-import requests
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "/../../")
 import pandas as pd
-from rdkit import Chem
-from rdkit.Chem import AllChem
-import nglview as nv
-import py3Dmol
-import plotly.graph_objects as go
-import torch
 from src.scripts.mutants_analysis import *
-from Bio.PDB import PDBParser
-from plotly.subplots import make_subplots
 from src.scripts.website_plots import *
 from src.scripts.mutants_analysis import bar_plot_df
 

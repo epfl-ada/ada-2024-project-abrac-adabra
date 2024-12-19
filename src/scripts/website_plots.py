@@ -9,7 +9,6 @@ from rdkit.Chem import AllChem
 import nglview as nv
 import py3Dmol
 import plotly.graph_objects as go
-import torch
 from src.scripts.mutants_analysis import *
 from Bio.PDB import PDBParser
 from plotly.subplots import make_subplots
@@ -318,26 +317,3 @@ def visualize_mutants(interaction_pairs_path, df_folder, pdb_files_folder):
         mutants_infos.update({wt_protein_name: (curr_num_mutants, curr_mutant_names)}) # Update summary table 
 
     return mutants_infos
-
-def bar_plot_df(interaction_pairs_path, df_folder):
-    """
-    Create bar plot df to visualize difference in binding affinity based on the ligand for a given pair
-    :param interaction_pairs_path: path to df containing information about interaction pairs
-    :param df_folder: folder containing csv files with infos about binding affinity of mutants
-    """
-    interaction_pairs = pd.read_csv(interaction_pairs_path)
-    mega_df = []
-    for idx, file_name in enumerate(sorted(os.listdir(df_folder))):
-        df = pd.read_csv(os.path.join(df_folder, file_name))
-        df = df[['Mutant Name', 'IC50 Log Ratio']]
-        df['WT protein'] = interaction_pairs.iloc[idx]['WT protein']
-        df['Ligand SMILES'] = interaction_pairs.iloc[idx]['Ligand SMILES']
-        df['Ligand name'] = interaction_pairs.iloc[idx]['Ligand name']
-        df['Ligand number'] = idx+1
-        mega_df.append(df)
-
-    df_grouped = pd.concat(mega_df, ignore_index=True).groupby(['WT protein', 'Mutant Name'])[['Ligand number', 'IC50 Log Ratio']].agg(list).reset_index()
-    df_grouped['Mutant Name'] = df_grouped['Mutant Name'].apply(lambda x: x.split(' ')[1])
-    final_df = df_grouped[df_grouped['Ligand number'].apply(len) >=2].explode(['Ligand number', 'IC50 Log Ratio'])
-    
-    return final_df

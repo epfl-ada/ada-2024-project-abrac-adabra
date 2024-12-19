@@ -2,7 +2,7 @@ import warnings
 import requests
 import pandas as pd 
 
-data_path = '../../data/BindingDB_All.tsv'
+data_path = '../../data/BindingDB/BindingDB_All.tsv'
 
 def filter_out_comparator(s):
     """
@@ -63,7 +63,7 @@ merged_df = clean_df.groupby(['Ligand SMILES', 'Target Name', 'BindingDB Target 
 
 print('Saving the processed data')
 # Exporting the dataframe to a .csv
-merged_df.to_csv('../data/merged_df.csv')
+merged_df.to_csv('../data/merged.csv')
 
 print('Processing the data further for mutant analysis')
 # Filtering out proteins that do not have any mutant
