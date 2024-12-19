@@ -499,7 +499,7 @@ def plot_ic50_both_graphs(row, df_merged, ic50_column='IC50 Difference', title=N
     else:
         axes[0].set_ylabel(y_axis)
     axes[0].grid(True)
-    axes[0].legend(handles=legend_handles)
+    axes[0].legend(handles=legend_handles,  fontsize='small', loc='lower center')
 
     # Second plot
     x_min = df["Positions"].min()
