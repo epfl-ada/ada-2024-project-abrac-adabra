@@ -3,13 +3,18 @@
 
 ## Abstract
 TODO (also introduce BindingDB,...)
-
-## Git Structure
+don't forget to put link to website: https://alexiscogne.github.io/ada-story-epfl/
 ### Results
 All results can be found in the notebooks P2 results and P3 results.
 - P2 results notebook contains data exploration, processing, and investigations of our first ideas
-- mutant_analysis contains the final results of our study regarding mutants which were elaborated on the basis of P2 results
-- TODO: abi and ric
+- P3 results notebook contains the final results of our study which were elaborated on the basis of P2 results
+
+### Team's collaboration
+- Tancredi: worked on data processing, mutant analysis, and data story
+- Alexis: worked on data exploration, implemented the website, and data story
+- Viola:
+- Riccardo:
+- Abigaïl:
 
 ### Data
 Not all data files can be loaded on Git due to their size but the folder structure is still shown to easily reproduce the results. The folder Data contains subfolders and files:
