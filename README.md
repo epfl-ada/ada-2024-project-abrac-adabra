@@ -7,8 +7,8 @@ TODO (also introduce BindingDB,...)
 ## Git Structure
 ### Results
 All results can be found in the notebooks P2 results and P3 results.
-- P2 results contains data exploration, processing, and investigations of our first ideas
-- mutant_analysis contains the final results of our study regarding mutants which were elaborated on the basis on P2 results
+- P2 results notebook contains data exploration, processing, and investigations of our first ideas
+- mutant_analysis contains the final results of our study regarding mutants which were elaborated on the basis of P2 results
 - TODO: abi and ric
 
 ### Data
