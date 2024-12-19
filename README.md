@@ -12,7 +12,7 @@ All results can be found in the notebooks P2 results and P3 results.
 ### Team's collaboration
 - Tancredi: worked on data processing, mutant analysis, and data story
 - Alexis: worked on data exploration, implemented the website, and data story
-- Viola:
+- Viola: worked on mutant analysis and data story
 - Riccardo:
 - Abigaïl:
 
