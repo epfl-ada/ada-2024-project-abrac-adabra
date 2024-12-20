@@ -10,19 +10,19 @@ Proteins and molecules interact all the time in living organisms. Experimentally
 - Can a low-dimensional space capture meaningful protein-ligand behaviors? E.g., protein embeddings cluster according to their similarity and clusters can be labeled according to their binding affinity with ligand groups.
 
 Our analysis is separated in two parts: the first one, called “Mutants Analysis”, tackles the first two questions and the second one the two last.
-### Results
+## Results
 All results can be found in the notebooks P2 results and P3 results.
 - P2 results notebook contains data exploration, processing, and investigations of our first ideas
 - P3 results notebook contains the final results of our study which were elaborated on the basis of P2 results
 
-### Team's collaboration
+## Team's collaboration
 - Tancredi: worked on data processing, mutant analysis, and data story
 - Alexis: worked on data exploration, implemented the website, and data story
 - Viola: worked on mutant analysis and data story
 - Riccardo:
 - Abigaïl:
 
-### Data
+## Data
 Not all data files can be loaded on Git due to their size but the folder structure is still shown to easily reproduce the results. The folder Data contains subfolders and files:
 - BindingDB: contains the file 'BindingDB_All.tsv' needed for data processing that can be found on the BindingDB website
 - processed_data: contains merged.csv and mutants.csv
@@ -31,7 +31,7 @@ Not all data files can be loaded on Git due to their size but the folder structu
 - prot_viz: all dataframes needed to visualize the proteins. There is one csv file per interaction pair (5). 
 - interaction_pairs.csv: summarizes each selected interaction pair (that has at least 10 mutants). For each pair, the ligand name, the ligand SMILES, and the WT protein name are given. 
 
-### Plots
+## Plots
 All the plots that will be put on the website (either as html files or images) can be found in the folder Plots which contains subfolders and files:
 - EGFR_HUMAN: html visualizations of the 3D structure of the WT EGFR_HUMAN and its mutants. This folder also contains mutant_names.csv which summarizes the name of the mutant associated to a given html file name in the current folder
 - KAPCA_BOVIN: html visualizations of the 3D structure of the WT KAPCA_BOVIN and its mutants. This folder also contains mutant_names.csv which summarizes the name of the mutant associated to a given html file name in the current folder
@@ -40,7 +40,7 @@ All the plots that will be put on the website (either as html files or images) c
 - barplot_KAPCA_BOVIN.png
 - interactive_ic50_plot.html
 
-### Scripts
+## Scripts
 All scripts to process the data, generate visualization and results can be found in the src/scripts folder which contains:
 - run website_plots_script.py to generate all visualizations for the website
 - website_plots.py: contains all the methods needed to generate visualizations for the website
