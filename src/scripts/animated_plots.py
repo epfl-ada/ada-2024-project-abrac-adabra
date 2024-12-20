@@ -110,6 +110,8 @@ def main(plot_name: str):
             text="ESM2 protein embeddings (colored by ligand group)"
         )
 
+        combined_fig.update_layout(coloraxis_showscale=False)
+
         combined_fig.layout['scene1'].update(
             aspectmode='cube',
             xaxis_title="UMAP 1",
