@@ -1,1 +1,1 @@
-empty
+This folder is empty due to the size of the files that could not be loaded on Git. This folder should contain the csv files for the filtered 5 interaction pairs.
