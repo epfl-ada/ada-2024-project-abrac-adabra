@@ -9,7 +9,7 @@ Proteins and molecules interact all the time in living organisms. Experimentally
 - Can we predict the coarse pattern of interaction of an unseen protein using its learned sequence embedding and ligand clustering?
 - Can a low-dimensional space capture meaningful protein-ligand behaviors? E.g., protein embeddings cluster according to their similarity and clusters can be labeled according to their binding affinity with ligand groups.
 
-Our analysis is separated in two parts: the first one, called “Mutants Analysis”, tackles the first two questions and the second one the two last.
+Our analysis is divided into two parts: the first, titled “Mutants Analysis”, addresses the first two questions, while the second part "Embedding Analysis" focuses on the remaining two.
 ## Results
 All results can be found in the notebooks P2 results and P3 results.
 - P2 results notebook contains data exploration, processing, and investigations of our first ideas
