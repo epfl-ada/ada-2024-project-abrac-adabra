@@ -1,6 +1,7 @@
 # Mutation-driven insights into protein structure and ligand group prediction through protein and ligand embeddings
 ### A project by Abigaïl Ingster, Alexis Cogne, Riccardo Carpineto, Tancredi Cogne, and Viola Renne
 Link to our datastory: https://alexiscogne.github.io/ada-story-epfl/
+Link to the GitHub of our datastory: https://github.com/AlexisCogne/ada-story-epfl
 ## Introduction
 Proteins and molecules interact all the time in living organisms. Experimentally analyzing known interactions and trying new ones has allowed a better understanding of biological processes in these organisms. These experiments are conducted in the lab and the results often appear in various scientific journals which makes it hard to find a large amount of results about a similar interaction. BindingDB is an online database that collected data from those experiments to allow an in silico analysis of the results. Our team was interested in digging into this database to see if valuable information could be obtained by an analysis of experiments made all over the world by many different generations of scientists. After exploring the database for a bit of time, we came up with four questions that we wanted to answer:
 
