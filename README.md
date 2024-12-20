@@ -1,9 +1,16 @@
 # Mutation-driven insights into protein structure and ligand group prediction through protein and ligand embeddings
 ### A project by Abigaïl Ingster, Alexis Cogne, Riccardo Carpineto, Tancredi Cogne, and Viola Renne
-
+Link to our datastory: https://alexiscogne.github.io/ada-story-epfl/
 ## Abstract
 TODO (also introduce BindingDB,...)
-don't forget to put link to website: https://alexiscogne.github.io/ada-story-epfl/
+Proteins and molecules interact all the time in living organisms. Experimentally analyzing known interactions and trying new ones has allowed a better understanding of biological processes in these organisms. These experiments are conducted in the lab and the results often appear in various scientific journals which makes it hard to find a large amount of results about a similar interaction. BindingDB is an online database that collected data from those experiments to allow an in silico analysis of the results. Our team was interested in digging into this database to see if valuable information could be obtained by an analysis of experiments made all over the world by many different generations of scientists. After exploring the database for a bit of time, we came up with four questions that we wanted to answer:
+
+- Can we identify key mutation sites that alter binding affinity?
+- How do mutations in reference-mutant protein groups affect binding affinities with specific ligands?
+- Can we predict the coarse pattern of interaction of an unseen protein using its learned sequence embedding and ligand clustering?
+- Can a low-dimensional space capture meaningful protein-ligand behaviors? E.g., protein embeddings cluster according to their similarity and clusters can be labeled according to their binding affinity with ligand groups.
+
+Our analysis is separated in two parts: the first one, called “Mutants Analysis”, tackles the first two questions and the second one the two last.
 ### Results
 All results can be found in the notebooks P2 results and P3 results.
 - P2 results notebook contains data exploration, processing, and investigations of our first ideas
