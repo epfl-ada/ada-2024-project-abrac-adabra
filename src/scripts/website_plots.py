@@ -121,18 +121,19 @@ def visualize_ligands(all_smiles):
 
         viewer.write_html(saving_path_ligand + '.html')
 
-def generate_interactive_ic50_plot():
+def test_generate_interactive_ic50_plot():
     """
     Generate IC50 interactive plot that will be displayed on the website
     """
 
     file_directory = '../../data/pair_dfs'
-    saving_directory = '../../plots'
+    saving_directory = 'plots'
     if not os.path.exists(saving_directory):
             os.makedirs(saving_directory)
 
     buttons = []
     all_traces = []
+    initially_active_plot = 1
     total_number_of_mutants_to_display = 0
     for file_name in sorted(os.listdir(file_directory)):
         if file_name.endswith('.csv'):
@@ -146,7 +147,6 @@ def generate_interactive_ic50_plot():
     for idx, file_name in enumerate(sorted(os.listdir(file_directory))):
         if file_name.endswith('.csv'):
             path = os.path.join(file_directory, file_name)
-
             df_pair = pd.read_csv(path)
 
             # Add traces for the current file
@@ -213,7 +213,14 @@ def generate_interactive_ic50_plot():
                 trace.visible = False
             for i in range(start_index, end_index):
                 all_traces[i].visible = True
+            if idx == initially_active_plot:
+                init_start_idx = start_index
+                init_end_idx = end_index
 
+    for trace in all_traces:
+                trace.visible = False
+    for i in range(init_start_idx, init_end_idx):
+        all_traces[i].visible = True
     # Add all traces to the figure
     for idx, t in enumerate(all_traces):
         fig.append_trace(t, row=(idx%2)+1, col=1)
@@ -222,10 +229,10 @@ def generate_interactive_ic50_plot():
         updatemenus=[{
             'buttons': buttons,
             'direction': 'down',
-            'x': 0.9,
-            'y': 1.125,
+            'x': 0.95,
+            'y': 1.13,
             'showactive': True,
-            'active': 4
+            'active': initially_active_plot
         }],
         title='IC50 Log Ratio by amino acid position for mutants of EGFR and KAPCA',
         hovermode='closest'
