@@ -6,12 +6,12 @@ import pandas as pd
 
 def get_3D_plot_data(plot_type: str):
     if plot_type == "ligands":
-        file_path = "data/merged_umap_df.csv"
-        labels = "UMAP"
+        file_path = "data/processed_data/merged_umap_df.csv"
+        labels = "Ligand UMAP"
         title = "3D KMeans Clustering of ChemBERTa ligand embeddings"
         dotsize = 6
     elif plot_type == "proteins":
-        file_path = "data/protein_ligand_matched.csv"
+        file_path = "data/processed_data/protein_ligand_matched.csv"
         labels = "Protein UMAP"
         title = "Clustering of ESM2 protein embeddings, colored by ligand group"
         dotsize = 3
@@ -27,13 +27,13 @@ def get_3D_plot_data(plot_type: str):
         x=f"{labels} 1",
         y=f"{labels} 2",
         z=f"{labels} 3",
-        color="class",
+        color="Ligand class",
         title=title,
         hover_data={
             f"{labels} 1": False,
             f"{labels} 2": False,
             f"{labels} 3": False,
-            "class": True,
+            "Ligand class": True,
         },
     )
     fig.update_traces(marker=dict(size=dotsize))
@@ -69,12 +69,12 @@ def main(plot_name: str):
         fig_proteins = get_3D_plot_data("proteins")
         pio.write_html(
             fig_ligands,
-            file="data/plots/test_liga.html",
+            file="plots/Embeddings/ligand_embeddings.html",
             auto_open=True,
         )
         pio.write_html(
             fig_proteins,
-            file="data/plots/test_prot.html",
+            file="plots/Embeddings/protein_embeddings.html",
             auto_open=True,
         )
 
@@ -125,7 +125,7 @@ def main(plot_name: str):
 
         pio.write_html(
             combined_fig,
-            file="data/plots/3d_combined_clustering_plot_squared.html",
+            file="plots/Embeddings/3d_combined_clustering_plot_squared.html",
             auto_open=True,
         )
     else:

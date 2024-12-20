@@ -16,3 +16,4 @@ tqdm~=4.66.5
 transformers~=4.45.2
 umap-learn~=0.5.4
 igraph~=0.11.8
+plotly~=5.24.1

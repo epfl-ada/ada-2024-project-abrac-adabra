@@ -25,7 +25,7 @@ All results can be found in the notebooks P2 results and P3 results.
 ## Data
 Not all data files can be loaded on Git due to their size but the folder structure is still shown to easily reproduce the results. The folder Data contains subfolders and files:
 - BindingDB: contains the file 'BindingDB_All.tsv' needed for data processing that can be found on the BindingDB website
-- processed_data: contains merged.csv, mutants.csv, filtered_best_ligand_ic50.csv, unique_ligand_embeddings.csv
+- processed_data: contains merged.csv, mutants.csv, filtered_best_ligand_ic50.csv, all_graph_embeddings.csv
 - pdb_files: which contains the pdb files needed to represent the 3D structures of the proteins analyzed in our study (EGFR_HUMAN.pdb and KAPCA_BOVIN.pdb). These were retrieved from AlphaFold's online API.
 - pair_dfs: all dataframes needed to visualize the IC50 scatter plots. There is one csv file per interaction pair (5).
 - prot_viz: all dataframes needed to visualize the proteins. There is one csv file per interaction pair (5). 

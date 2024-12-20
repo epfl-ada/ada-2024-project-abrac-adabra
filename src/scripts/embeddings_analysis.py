@@ -79,13 +79,14 @@ def ligand_umap(unique_smiles_df, embeddings, dimensions=3, plotting=True, seed=
     return merged_umap_df
 
 
-def cluster_ligand(merged_umap_df, n_clusters=9, plotting=True):
+def cluster_ligand(merged_umap_df, n_clusters=9, plotting=True, save_path='data/processed_data/'):
     """
     Cluster ligands using k-means on UMAP-transformed embeddings and plot the results.
 
     :param merged_umap_df: DataFrame with UMAP-transformed ligand embeddings.
     :param n_clusters: Number of clusters for k-means (default is 9).
     :param plotting: Boolean to control if the clustering plot should be displayed (default is True).
+    :param save_path: Path to save the generated plot.
     :return: DataFrame with ligand clusters added.
     """
     # Perform k-means clustering on UMAP-transformed data
@@ -95,6 +96,9 @@ def cluster_ligand(merged_umap_df, n_clusters=9, plotting=True):
     merged_umap_df = pd.concat(
         [merged_umap_df, pd.DataFrame({"Ligand class": kmeans_labels_UMAP})], axis=1
     )
+
+    if save_path:
+        merged_umap_df.to_csv(os.path.join(save_path, 'merged_umap_df.csv'))
 
     # Plotting clustering results
     if plotting:
@@ -114,7 +118,7 @@ def cluster_ligand(merged_umap_df, n_clusters=9, plotting=True):
 
 
 def prot_umap(
-    interactions_df, ligand_umap_df, dimensions=3, n_clusters=9, plotting=True
+    interactions_df, ligand_umap_df, dimensions=3, n_clusters=9, plotting=True, save_path='data/processed_data/'
 ):
     """
     Apply UMAP on protein embeddings and merge them with ligand data for visualization.
@@ -124,6 +128,7 @@ def prot_umap(
     :param dimensions: Number of dimensions for UMAP transformation (default is 3).
     :param n_clusters: Number of clusters for visualization (default is 9).
     :param plotting: Boolean to control if the UMAP plot should be displayed (default is True).
+    :param save_path: Path to save the generated plot.
     :return: DataFrame with protein embeddings and ligand data.
     """
 
@@ -147,6 +152,9 @@ def prot_umap(
     )
     umap_prot_df.set_index(protein_ligand_matched.index, inplace=True)
     protein_ligand_matched = pd.concat([protein_ligand_matched, umap_prot_df], axis=1)
+
+    if save_path:
+        protein_ligand_matched.to_csv(os.path.join(save_path, 'protein_ligand_matched.csv'))
 
     # Plotting if required
     if plotting:
