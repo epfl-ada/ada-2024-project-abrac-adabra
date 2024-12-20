@@ -46,7 +46,7 @@ All the plots that will be put on the website (either as html files or images) c
 All scripts to process the data, generate visualization and results can be found in the src/scripts folder which contains:
 - run website_plots_script.py to generate all visualizations for the website
 - website_plots.py: contains all the methods needed to generate visualizations for the website
-- P3_results.py: contains all the mutant analysis, ChemBERTa and ESM2 embedding exploration, and graph examination
+- P3_results.ipynb: contains all the mutant analysis, ChemBERTa and ESM2 embedding exploration, and graph examination
 - P2_results.ipynb: contains all the results obtained during the milestone 2
 
 ## Usage
