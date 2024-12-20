@@ -19,8 +19,8 @@ All results can be found in the notebooks P2 results and P3 results.
 - Tancredi: worked on data processing, mutant analysis, and data story
 - Alexis: worked on data exploration, implemented the website, and data story
 - Viola: worked on mutant analysis and data story
-- Riccardo: worked on protein classification based on best-binding ligand class and datastory
-- Abigaïl: worked on protein classification based on best-binding ligand class, graph analysis of protein and ligands, and datastory
+- Riccardo: worked on protein and ligand embeddings, protein classification based on best-binding ligand class and datastory
+- Abigaïl: worked on protein and ligand embeddings, graph analysis of protein and ligands, and datastory
 
 ## Data
 Not all data files can be loaded on Git due to their size but the folder structure is still shown to easily reproduce the results. The folder Data contains subfolders and files:
@@ -39,12 +39,15 @@ All the plots that will be put on the website (either as html files or images) c
 - barplot_EGFR_HUMAN.png
 - barplot_KAPCA_BOVIN.png
 - interactive_ic50_plot.html
+- Embeddings: html visualization of ligand and protein embeddings (UMAP of ChemBERTa and ESM2 representations, respectively)
+- Graph_analysis: visualization of bipartite and unipartite protein and ligand graphs, and of correlation between cosine similarity of embeddings and graph connection weight
 
 ## Scripts
 All scripts to process the data, generate visualization and results can be found in the src/scripts folder which contains:
 - run website_plots_script.py to generate all visualizations for the website
 - website_plots.py: contains all the methods needed to generate visualizations for the website
-- mutant_analysis.py: contains all the methods needed for the mutant analysis 
+- P3_results.py: contains all the mutant analysis, ChemBERTa and ESM2 embedding exploration, and graph examination
+- P2_results.ipynb: contains all the results obtained during the milestone 2
 
 ## Usage
 
@@ -57,5 +60,13 @@ To process the data, run the file src/scripts/data_processing.py:
 
 ### Mutants Analysis
 The mutant analysis functions are located in src/scripts/mutants_analysis.py. This script includes functions for alignments, difference calculations, and IC50 plot generation.
-Usage examples can be found in the accompanying Jupyter notebook (mutant_analysis.ipynb).
+Usage examples can be found in the accompanying Jupyter notebook (first part of P3_results.ipynb).
 The primary inputs for these functions are derived from the data processing step.
+
+### Embeddings Analysis
+The embedding analysis functions are located in src/scripts/embeddings_analysis.py. This script includes functions for UMAP computation on protein and ligand embeddings, and classifier training.
+Usage examples can be found in the accompanying Jupyter notebook (second part of P3_results.ipynb).
+
+### Graph Analysis
+The graph analysis functions are located in src/scripts/graph_analysis.py. This script includes functions for bipartite graph generation, projection to unipartite graphs, and comparison of graph weights with cosine similarity of ChemBERTa and ESM2 embeddings.
+Usage examples can be found in the accompanying Jupyter notebook (third part of P3_results.ipynb).
